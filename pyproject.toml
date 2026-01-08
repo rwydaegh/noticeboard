@@ -1,0 +1,31 @@
+[project]
+name = "noticeboard-tenders"
+version = "0.1.0"
+description = "Search public contracts and follow changes."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "django==5.2.10"
+]
+
+[dependency-groups]
+dev = ["pytest==8.4.2", "pytest-django==4.11.1", "ruff==0.14.10"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "noticeboard.settings"
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"evaluation/*.py" = ["E402"]
+"tests/browser_smoke.py" = ["E402"]
+
+[tool.uv]
+exclude-newer = "2026-01-07T23:59:59Z"
