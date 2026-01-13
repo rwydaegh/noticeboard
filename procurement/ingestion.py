@@ -1,12 +1,41 @@
 import json
 import logging
+import time
 
+import httpx
 from django.db import transaction
+from django.utils import timezone
 
-from .models import Artifact, Lot, Notice, Opportunity
-from .parsing import checksum
+from .models import Artifact, ImportRun, Lot, Notice, Opportunity
+from .parsing import checksum, parse_search
 
 log = logging.getLogger(__name__)
+TED_API = "https://api.ted.europa.eu/v3/notices/search"
+FIELDS = [
+    "publication-number",
+    "publication-date",
+    "notice-title",
+    "buyer-name",
+    "buyer-country",
+    "notice-type",
+    "notice-identifier",
+    "procedure-identifier",
+    "description-proc",
+    "description-lot",
+    "classification-cpv",
+    "document-url-lot",
+    "deadline-receipt-tender-date-lot",
+    "change-description",
+    "change-notice-version-identifier",
+    "change-reason-code",
+    "official-language",
+]
+
+
+def request_page(client, payload, sleep=time.sleep):
+    response = client.post(TED_API, json=payload)
+    response.raise_for_status()
+    return response.json()
 
 
 def ordering(notice):
@@ -73,3 +102,54 @@ def ingest(parsed, raw, format="json"):
         opportunity.current = candidate
         opportunity.save(update_fields=["current", "updated_at"])
     return notice, "created" if created else "updated"
+
+
+def sync_ted(query, limit=250, client=None):
+    run = ImportRun.objects.create(query=query)
+    owned = client is None
+    client = client or httpx.Client(
+        timeout=45, headers={"User-Agent": "Noticeboard/0.1 (public procurement reuse)"}
+    )
+    try:
+        token = None
+        while run.seen < limit:
+            request = {
+                "query": query,
+                "fields": FIELDS,
+                "limit": min(100, limit - run.seen),
+                "scope": "ALL",
+                "paginationMode": "ITERATION",
+                "checkQuerySyntax": False,
+            }
+            if token:
+                request["iterationNextToken"] = token
+            body = request_page(client, request)
+            if body.get("totalNoticeCount") is not None:
+                run.source_total = body["totalNoticeCount"]
+            records = body.get("notices", [])
+            for record in records:
+                _, outcome = ingest(parse_search(record), record)
+                run.created += outcome == "created"
+                run.unchanged += outcome == "unchanged"
+                run.seen += 1
+            token = body.get("iterationNextToken")
+            run.cursor = token or ""
+            run.save()
+            if not records or not token:
+                break
+        run.truncated = bool(
+            token
+            and run.seen >= limit
+            and (run.source_total is None or run.seen < run.source_total)
+        )
+        run.status = "partial" if run.errors else "bounded" if run.truncated else "complete"
+    except Exception as exc:
+        log.exception("Import %s failed", run.pk)
+        run.errors.append({"error": str(exc)[:400]})
+        run.status = "failed"
+    finally:
+        if owned:
+            client.close()
+        run.finished_at = timezone.now()
+        run.save()
+    return run
