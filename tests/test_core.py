@@ -1,8 +1,10 @@
+import copy
+
 import pytest
 from conftest import FIXTURE
 
 from procurement.ingestion import ingest
-from procurement.models import Artifact, Notice
+from procurement.models import Artifact, Notice, Opportunity
 from procurement.parsing import parse_search, status
 
 
@@ -22,8 +24,14 @@ def test_search_arrays_are_not_invented_lots():
 
 
 @pytest.mark.django_db
-def test_importing_the_same_record_twice_is_harmless(source):
-    notice, state = ingest(source, FIXTURE.read_bytes())
-    assert state == "created"
-    assert ingest(source, FIXTURE.read_bytes())[1] == "unchanged"
-    assert Notice.objects.count() == Artifact.objects.count() == 1
+def test_repeat_import_and_historical_arrival(source):
+    latest, outcome = ingest(source, FIXTURE.read_bytes(), "xml")
+    assert outcome == "created"
+    assert ingest(source, FIXTURE.read_bytes(), "xml")[1] == "unchanged"
+    earlier = copy.deepcopy(source)
+    earlier.update(publication_id="100-2026", published="2026-01-01", title="Earlier title")
+    old, _ = ingest(earlier, b"synthetic earlier version", "xml")
+    latest.opportunity.refresh_from_db()
+    assert latest.opportunity.current_id == latest.id
+    assert Notice.objects.count() == Artifact.objects.count() == 2
+    assert Opportunity.objects.count() == 1
