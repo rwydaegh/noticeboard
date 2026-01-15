@@ -97,7 +97,7 @@ def ingest(parsed, raw, format="json"):
         ]
     )
     notice.refresh_from_db()
-    candidate = notice
+    candidate = max(opportunity.notices.all(), key=ordering)
     if opportunity.current_id != candidate.id:
         opportunity.current = candidate
         opportunity.save(update_fields=["current", "updated_at"])
