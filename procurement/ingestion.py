@@ -33,9 +33,22 @@ FIELDS = [
 
 
 def request_page(client, payload, sleep=time.sleep):
-    response = client.post(TED_API, json=payload)
-    response.raise_for_status()
-    return response.json()
+    for attempt in range(4):
+        response = client.post(TED_API, json=payload)
+        if response.status_code not in {429, 500, 502, 503, 504}:
+            response.raise_for_status()
+            body = response.json()
+            if body.get("timedOut"):
+                raise RuntimeError("TED search timed out. Import is incomplete.")
+            return body
+        if attempt == 3:
+            response.raise_for_status()
+        try:
+            delay = float(response.headers.get("Retry-After", 2 ** (attempt + 1)))
+        except ValueError:
+            delay = 2 ** (attempt + 1)
+        sleep(min(max(delay, 1), 60))
+    raise RuntimeError("Unreachable retry state")
 
 
 def ordering(notice):
