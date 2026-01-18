@@ -112,6 +112,7 @@ def sync_ted(query, limit=250, client=None):
     )
     try:
         token = None
+        seen_tokens = set()
         while run.seen < limit:
             request = {
                 "query": query,
@@ -128,15 +129,26 @@ def sync_ted(query, limit=250, client=None):
                 run.source_total = body["totalNoticeCount"]
             records = body.get("notices", [])
             for record in records:
-                _, outcome = ingest(parse_search(record), record)
-                run.created += outcome == "created"
-                run.unchanged += outcome == "unchanged"
+                try:
+                    _, outcome = ingest(parse_search(record), record)
+                    run.created += outcome == "created"
+                    run.unchanged += outcome == "unchanged"
+                except Exception as exc:
+                    run.errors.append(
+                        {
+                            "record": record.get("publication-number", "unknown"),
+                            "error": str(exc)[:400],
+                        }
+                    )
                 run.seen += 1
             token = body.get("iterationNextToken")
             run.cursor = token or ""
             run.save()
             if not records or not token:
                 break
+            if token in seen_tokens:
+                raise RuntimeError("TED returned a repeated pagination cursor")
+            seen_tokens.add(token)
         run.truncated = bool(
             token
             and run.seen >= limit

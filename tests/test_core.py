@@ -1,9 +1,10 @@
 import copy
 
+import httpx
 import pytest
 from conftest import FIXTURE
 
-from procurement.ingestion import ingest
+from procurement.ingestion import ingest, sync_ted
 from procurement.models import Artifact, Notice, Opportunity
 from procurement.parsing import parse_search, status
 
@@ -35,3 +36,22 @@ def test_repeat_import_and_historical_arrival(source):
     assert latest.opportunity.current_id == latest.id
     assert Notice.objects.count() == Artifact.objects.count() == 2
     assert Opportunity.objects.count() == 1
+
+
+@pytest.mark.django_db
+def test_bad_record_is_quarantined_and_cursor_loop_fails():
+    def handler(request):
+        return httpx.Response(
+            200,
+            json={
+                "notices": [{"publication-number": "invalid"}],
+                "iterationNextToken": "same",
+                "totalNoticeCount": 20,
+            },
+        )
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        run = sync_ted("test", 10, client=client)
+    assert run.status == "failed"
+    assert run.seen == 2
+    assert any("repeated" in e.get("error", "") for e in run.errors)
