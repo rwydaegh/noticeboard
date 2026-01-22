@@ -5,7 +5,8 @@ description = "Search public contracts and follow changes."
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "django==5.2.10",
-  "httpx==0.28.1"
+  "httpx==0.28.1",
+  "django-ninja==1.5.2"
 ]
 
 [dependency-groups]
