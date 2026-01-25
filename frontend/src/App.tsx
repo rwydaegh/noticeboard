@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { request } from "./api";
-import type { Results } from "./types";
+import type { Notice, Results } from "./types";
 
 export default function App() {
   const [q, setQ] = useState("");
@@ -21,6 +21,7 @@ export default function App() {
       .catch(fail);
   }
   useEffect(load, []);
+  const [selected, setSelected] = useState<Notice>();
 
   return (
     <main>
@@ -59,8 +60,15 @@ export default function App() {
         <section aria-label="Search results">
           {results.items.map((n) => (
             <article className="notice-row" key={n.id}>
-              <h2>{n.title}</h2>
-              <a href={n.source_url}>Source</a>
+              <button
+                onClick={() =>
+                  request<Notice>("/notices/" + n.id)
+                    .then(setSelected)
+                    .catch(fail)
+                }
+              >
+                {n.title}
+              </button>
               <h3>{n.buyer}</h3>
               <p>
                 {n.country} · {n.status}
@@ -68,6 +76,18 @@ export default function App() {
             </article>
           ))}
         </section>
+        {selected && (
+          <aside>
+            <button onClick={() => setSelected(undefined)}>Close detail</button>
+            <h2>{selected.title}</h2>
+            <p>{selected.publication_id}</p>
+            <p>{selected.description}</p>
+            <a href={selected.source_url}>Open source</a>
+            {selected.warnings.map((w) => (
+              <p key={w}>{w}</p>
+            ))}
+          </aside>
+        )}
       </div>
     </main>
   );
