@@ -1,0 +1,72 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  font:
+    16px/1.5 system-ui,
+    sans-serif;
+  color: #263238;
+  background: #faf9f6;
+  margin: 0;
+}
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 24px;
+}
+h1,
+h2,
+h3 {
+  font-weight: 600;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  max-width: 100%;
+}
+button {
+  cursor: pointer;
+}
+label {
+  display: block;
+  margin: 10px 0;
+}
+input,
+textarea {
+  display: block;
+  padding: 6px;
+  width: 100%;
+}
+input[type="checkbox"] {
+  width: auto;
+  display: inline;
+}
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+article {
+  padding: 14px 0;
+  border-bottom: 1px solid #ddd;
+}
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+aside {
+  min-width: 0;
+}
+a {
+  color: #23604d;
+}
+@media (max-width: 700px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
+  main {
+    padding: 16px;
+  }
+}
