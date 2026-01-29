@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { request } from "./api";
-import type { Notice, Results } from "./types";
+import { request, authenticate, signOut } from "./api";
+import type { Notice, Results, Watch } from "./types";
 
 export default function App() {
   const [q, setQ] = useState("");
@@ -22,6 +22,22 @@ export default function App() {
   }
   useEffect(load, []);
   const [selected, setSelected] = useState<Notice>();
+  const [user, setUser] = useState<string | null>(null);
+  const [watches, setWatches] = useState<Watch[]>([]);
+  const [note, setNote] = useState("");
+  function savedWork() {
+    request<{ items: Watch[] }>("/watchlist")
+      .then((r) => setWatches(r.items))
+      .catch(fail);
+  }
+  useEffect(() => {
+    request<{ user: string | null }>("/session")
+      .then((s) => setUser(s.user))
+      .catch(fail);
+  }, []);
+  useEffect(() => {
+    if (user) savedWork();
+  }, [user]);
 
   return (
     <main>
@@ -30,6 +46,41 @@ export default function App() {
         <p>Public contracts in a local collection.</p>
       </header>
       {error && <p role="alert">{error}</p>}
+      {user ? (
+        <p>
+          {user}{" "}
+          <button
+            onClick={() =>
+              signOut()
+                .then(() => {
+                  setUser(null);
+                  setWatches([]);
+                })
+                .catch(fail)
+            }
+          >
+            Sign out
+          </button>
+        </p>
+      ) : (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const f = new FormData(e.currentTarget);
+            authenticate(String(f.get("username")), String(f.get("password")))
+              .then(setUser)
+              .catch(fail);
+          }}
+        >
+          <label>
+            Username <input name="username" />
+          </label>
+          <label>
+            Password <input type="password" name="password" />
+          </label>
+          <button>Sign in</button>
+        </form>
+      )}
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -86,9 +137,51 @@ export default function App() {
             {selected.warnings.map((w) => (
               <p key={w}>{w}</p>
             ))}
+            {user && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  request("/watchlist/" + selected.id, "PUT", {
+                    note,
+                    stage: "saved",
+                  })
+                    .then(savedWork)
+                    .catch(fail);
+                }}
+              >
+                <label>
+                  Review note{" "}
+                  <textarea
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                  />
+                </label>
+                <button>Save notice</button>
+              </form>
+            )}
           </aside>
         )}
       </div>
+      {user && (
+        <section>
+          <h2>Saved notices</h2>
+          {watches.map((w) => (
+            <article className="watch-entry" key={w.opportunity.id}>
+              <h3>{w.opportunity.title}</h3>
+              <p>{w.note}</p>
+              <button
+                onClick={() =>
+                  request("/watchlist/" + w.opportunity.id, "DELETE")
+                    .then(savedWork)
+                    .catch(fail)
+                }
+              >
+                Remove
+              </button>
+            </article>
+          ))}
+        </section>
+      )}
     </main>
   );
 }

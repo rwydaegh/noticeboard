@@ -1,10 +1,12 @@
 from datetime import date
 
 from django.shortcuts import get_object_or_404
-from ninja import NinjaAPI
+from ninja import NinjaAPI, Schema
 from ninja.errors import HttpError
+from ninja.security import django_auth
+from pydantic import Field
 
-from .models import ImportRun, Notice, Opportunity
+from .models import ImportRun, Notice, Opportunity, Watch
 from .search import retrieve
 from .serialization import serialize
 
@@ -84,3 +86,46 @@ def run_json(run):
         "truncated": run.truncated,
         "source_total": run.source_total,
     }
+
+
+class WatchInput(Schema):
+    stage: str = Field(default="saved", pattern="^(saved|reviewing|pursue|pass)$")
+    note: str = Field(default="", max_length=10000)
+    mark_seen: bool = True
+
+
+@api.get("/watchlist", auth=django_auth)
+def watchlist(request):
+    watches = (
+        Watch.objects.filter(user=request.user)
+        .select_related("opportunity__current")
+        .order_by("-created_at")
+    )
+    return {
+        "items": [
+            {
+                "opportunity": serialize(w.opportunity),
+                "stage": w.stage,
+                "note": w.note,
+                "updated": w.seen_notice_id != w.opportunity.current_id,
+            }
+            for w in watches
+            if w.opportunity.current_id
+        ]
+    }
+
+
+@api.put("/watchlist/{ident}", auth=django_auth)
+def save_watch(request, ident: int, payload: WatchInput):
+    obj = opportunity(ident)
+    values = {"stage": payload.stage, "note": payload.note}
+    if payload.mark_seen:
+        values["seen_notice"] = obj.current
+    Watch.objects.update_or_create(user=request.user, opportunity=obj, defaults=values)
+    return {"saved": True}
+
+
+@api.delete("/watchlist/{ident}", auth=django_auth)
+def delete_watch(request, ident: int):
+    Watch.objects.filter(user=request.user, opportunity_id=ident).delete()
+    return {"saved": False}
