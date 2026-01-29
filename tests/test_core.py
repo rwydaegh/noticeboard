@@ -3,6 +3,8 @@ import copy
 import httpx
 import pytest
 from conftest import FIXTURE
+from django.contrib.auth.models import User
+from django.test import Client
 
 from procurement.ingestion import ingest, request_page, sync_ted
 from procurement.models import Artifact, Notice, Opportunity
@@ -72,3 +74,30 @@ def test_bad_record_is_quarantined_and_cursor_loop_fails():
     assert run.status == "failed"
     assert run.seen == 2
     assert any("repeated" in e.get("error", "") for e in run.errors)
+
+
+def test_mutation_requires_csrf(notice):
+    user = User.objects.create_user("csrf-user")
+    client = Client(enforce_csrf_checks=True)
+    client.force_login(user)
+    url = f"/api/watchlist/{notice.opportunity_id}"
+    assert client.put(url, "{}", content_type="application/json").status_code == 403
+    token = client.get("/auth/csrf").json()["csrfToken"]
+    assert (
+        client.put(url, "{}", content_type="application/json", HTTP_X_CSRFTOKEN=token).status_code
+        == 200
+    )
+
+
+def test_watch_ownership(notice):
+    alice, bob = User.objects.create_user("alice"), User.objects.create_user("bob")
+    a, b = Client(), Client()
+    a.force_login(alice)
+    b.force_login(bob)
+    a.put(
+        f"/api/watchlist/{notice.opportunity_id}",
+        '{"note":"Private"}',
+        content_type="application/json",
+    )
+    assert b.get("/api/watchlist").json()["items"] == []
+    assert Client().get("/api/watchlist").status_code == 401
