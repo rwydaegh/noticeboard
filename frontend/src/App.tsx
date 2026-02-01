@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { request, authenticate, signOut } from "./api";
-import type { Notice, Results, Watch } from "./types";
+import type { Notice, Results, Watch, SavedSearch } from "./types";
 
 export default function App() {
   const [q, setQ] = useState("");
@@ -37,6 +37,15 @@ export default function App() {
   }, []);
   useEffect(() => {
     if (user) savedWork();
+  }, [user]);
+  const [saved, setSaved] = useState<SavedSearch[]>([]);
+  function savedQueries() {
+    request<{ items: SavedSearch[] }>("/saved-searches")
+      .then((r) => setSaved(r.items))
+      .catch(fail);
+  }
+  useEffect(() => {
+    if (user) savedQueries();
   }, [user]);
 
   return (
@@ -101,6 +110,50 @@ export default function App() {
         </label>
         <button>Search</button>
       </form>
+      {user && (
+        <section>
+          <button
+            onClick={() =>
+              request("/saved-searches", "POST", {
+                name: q || "All notices",
+                query: q,
+                country,
+              })
+                .then(savedQueries)
+                .catch(fail)
+            }
+          >
+            Save search
+          </button>
+          {saved.map((s) => (
+            <p key={s.id}>
+              <button
+                onClick={() => {
+                  setQ(s.query);
+                  setCountry(s.country);
+                  request<Results>(
+                    "/notices?" +
+                      new URLSearchParams({ q: s.query, country: s.country }),
+                  )
+                    .then(setResults)
+                    .catch(fail);
+                }}
+              >
+                {s.name}
+              </button>
+              <button
+                onClick={() =>
+                  request("/saved-searches/" + s.id, "DELETE")
+                    .then(savedQueries)
+                    .catch(fail)
+                }
+              >
+                Delete
+              </button>
+            </p>
+          ))}
+        </section>
+      )}
       <p>
         {results.total} results · {results.backend}
       </p>

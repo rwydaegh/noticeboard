@@ -1,4 +1,5 @@
 import copy
+import json
 
 import httpx
 import pytest
@@ -89,15 +90,23 @@ def test_mutation_requires_csrf(notice):
     )
 
 
-def test_watch_ownership(notice):
-    alice, bob = User.objects.create_user("alice"), User.objects.create_user("bob")
+def test_saved_search_ownership_and_watch_isolation(notice):
+    alice = User.objects.create_user("alice", password="test-pass")
+    bob = User.objects.create_user("bob", password="test-pass")
     a, b = Client(), Client()
     a.force_login(alice)
     b.force_login(bob)
+    ident = a.post(
+        "/api/saved-searches",
+        json.dumps({"name": "Private search"}),
+        content_type="application/json",
+    ).json()["id"]
+    assert b.delete(f"/api/saved-searches/{ident}").status_code == 404
     a.put(
         f"/api/watchlist/{notice.opportunity_id}",
-        '{"note":"Private"}',
+        json.dumps({"note": "Private note"}),
         content_type="application/json",
     )
     assert b.get("/api/watchlist").json()["items"] == []
+    assert a.get("/api/watchlist").json()["items"][0]["note"] == "Private note"
     assert Client().get("/api/watchlist").status_code == 401

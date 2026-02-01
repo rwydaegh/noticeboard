@@ -6,7 +6,7 @@ from ninja.errors import HttpError
 from ninja.security import django_auth
 from pydantic import Field
 
-from .models import ImportRun, Notice, Opportunity, Watch
+from .models import ImportRun, Notice, Opportunity, SavedSearch, Watch
 from .search import retrieve
 from .serialization import serialize
 
@@ -129,3 +129,34 @@ def save_watch(request, ident: int, payload: WatchInput):
 def delete_watch(request, ident: int):
     Watch.objects.filter(user=request.user, opportunity_id=ident).delete()
     return {"saved": False}
+
+
+class SearchInput(Schema):
+    name: str = Field(min_length=1, max_length=100)
+    query: str = Field(default="", max_length=500)
+    country: str = Field(default="", max_length=3)
+    status: str = Field(default="", max_length=20)
+
+
+@api.get("/saved-searches", auth=django_auth)
+def saved_searches(request):
+    return {
+        "items": list(
+            SavedSearch.objects.filter(user=request.user).values(
+                "id", "name", "query", "country", "status"
+            )
+        )
+    }
+
+
+@api.post("/saved-searches", auth=django_auth)
+def save_search(request, payload: SearchInput):
+    obj = SavedSearch.objects.create(user=request.user, **payload.dict())
+    return {"id": obj.pk}
+
+
+@api.delete("/saved-searches/{ident}", auth=django_auth)
+def delete_search(request, ident: int):
+    obj = get_object_or_404(SavedSearch, user=request.user, pk=ident)
+    obj.delete()
+    return {"deleted": True}
