@@ -1,3 +1,4 @@
+import difflib
 from datetime import UTC, datetime
 
 from .parsing import status
@@ -55,4 +56,29 @@ def serialize(opportunity, detail=False):
             retrieved_at=notice.retrieved_at.isoformat(),
             checksum=notice.checksum,
         )
+        result["comparison"] = compare(notices[1], notice) if len(notices) > 1 else None
     return result
+
+
+def compare(old, new):
+    return compare_payloads(old.payload, new.payload)
+
+
+def compare_payloads(old, new):
+    fields = []
+    for key in ["title", "buyer", "description", "kind", "country"]:
+        a, b = old.get(key), new.get(key)
+        if a != b:
+            fields.append({"field": key, "before": a, "after": b})
+    return {
+        "before": old.get("publication_id"),
+        "after": new.get("publication_id"),
+        "fields": fields,
+        "description_diff": list(
+            difflib.unified_diff(
+                old.get("description", "").splitlines(),
+                new.get("description", "").splitlines(),
+                lineterm="",
+            )
+        )[:200],
+    }

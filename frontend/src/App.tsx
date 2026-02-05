@@ -212,6 +212,15 @@ export default function App() {
                 <button>Save notice</button>
               </form>
             )}
+            <h3>Publications</h3>
+            {selected.versions?.map((v) => (
+              <p key={v.publication_id}>
+                {v.publication_id} · {v.published}
+              </p>
+            ))}
+            {selected.comparison && (
+              <pre>{JSON.stringify(selected.comparison.fields, null, 2)}</pre>
+            )}
           </aside>
         )}
       </div>
@@ -222,6 +231,7 @@ export default function App() {
             <article className="watch-entry" key={w.opportunity.id}>
               <h3>{w.opportunity.title}</h3>
               <p>{w.note}</p>
+              {w.updated && <p>Updated since review</p>}
               <button
                 onClick={() =>
                   request("/watchlist/" + w.opportunity.id, "DELETE")

@@ -10,6 +10,7 @@ from django.test import Client
 from procurement.ingestion import ingest, request_page, sync_ted
 from procurement.models import Artifact, Notice, Opportunity
 from procurement.parsing import parse_search, status
+from procurement.serialization import compare
 
 
 def test_search_arrays_are_not_invented_lots():
@@ -39,6 +40,7 @@ def test_repeat_import_and_historical_arrival(source):
     assert latest.opportunity.current_id == latest.id
     assert Notice.objects.count() == Artifact.objects.count() == 2
     assert Opportunity.objects.count() == 1
+    assert compare(old, latest)["fields"][0]["field"] == "title"
 
 
 def test_retry_after_and_timeout_are_visible():

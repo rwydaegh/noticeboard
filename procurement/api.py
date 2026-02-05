@@ -8,7 +8,7 @@ from pydantic import Field
 
 from .models import ImportRun, Notice, Opportunity, SavedSearch, Watch
 from .search import retrieve
-from .serialization import serialize
+from .serialization import compare, serialize
 
 api = NinjaAPI(title="Noticeboard API", version="0.1.0")
 
@@ -55,6 +55,14 @@ def notices(
 @api.get("/notices/{ident}")
 def detail(request, ident: int):
     return serialize(opportunity(ident), detail=True)
+
+
+@api.get("/notices/{ident}/compare")
+def compare_versions(request, ident: int, before: str, after: str):
+    obj = opportunity(ident)
+    old = get_object_or_404(Notice, opportunity=obj, publication_id=before)
+    new = get_object_or_404(Notice, opportunity=obj, publication_id=after)
+    return compare(old, new)
 
 
 @api.get("/collection")
@@ -108,9 +116,34 @@ def watchlist(request):
                 "stage": w.stage,
                 "note": w.note,
                 "updated": w.seen_notice_id != w.opportunity.current_id,
+                "changes": compare(w.seen_notice, w.opportunity.current)
+                if w.seen_notice_id and w.seen_notice_id != w.opportunity.current_id
+                else None,
             }
             for w in watches
             if w.opportunity.current_id
+        ]
+    }
+
+
+@api.get("/inbox", auth=django_auth)
+def inbox(request):
+    watches = (
+        Watch.objects.filter(user=request.user)
+        .exclude(opportunity__current=None)
+        .select_related("opportunity__current", "seen_notice")
+    )
+    return {
+        "items": [
+            {
+                "opportunity": serialize(w.opportunity),
+                "stage": w.stage,
+                "changes": compare(w.seen_notice, w.opportunity.current)
+                if w.seen_notice_id
+                else None,
+            }
+            for w in watches
+            if w.seen_notice_id != w.opportunity.current_id
         ]
     }
 
