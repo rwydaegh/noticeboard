@@ -80,6 +80,8 @@ class Watch(models.Model):
     stage = models.CharField(max_length=20, default="saved")
     note = models.TextField(blank=True)
     seen_notice = models.ForeignKey(Notice, null=True, on_delete=models.SET_NULL)
+    seen_checksum = models.CharField(max_length=64, blank=True)
+    seen_payload = models.JSONField(default=dict)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

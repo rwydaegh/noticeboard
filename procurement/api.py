@@ -8,7 +8,7 @@ from pydantic import Field
 
 from .models import ImportRun, Notice, Opportunity, SavedSearch, Watch
 from .search import retrieve
-from .serialization import compare, serialize
+from .serialization import compare, compare_payloads, serialize
 
 api = NinjaAPI(title="Noticeboard API", version="0.1.0")
 
@@ -115,9 +115,9 @@ def watchlist(request):
                 "opportunity": serialize(w.opportunity),
                 "stage": w.stage,
                 "note": w.note,
-                "updated": w.seen_notice_id != w.opportunity.current_id,
-                "changes": compare(w.seen_notice, w.opportunity.current)
-                if w.seen_notice_id and w.seen_notice_id != w.opportunity.current_id
+                "updated": w.seen_checksum != w.opportunity.current.checksum,
+                "changes": compare_payloads(w.seen_payload, w.opportunity.current.payload)
+                if w.seen_payload and w.seen_checksum != w.opportunity.current.checksum
                 else None,
             }
             for w in watches
@@ -138,12 +138,12 @@ def inbox(request):
             {
                 "opportunity": serialize(w.opportunity),
                 "stage": w.stage,
-                "changes": compare(w.seen_notice, w.opportunity.current)
-                if w.seen_notice_id
+                "changes": compare_payloads(w.seen_payload, w.opportunity.current.payload)
+                if w.seen_payload
                 else None,
             }
             for w in watches
-            if w.seen_notice_id != w.opportunity.current_id
+            if w.seen_checksum != w.opportunity.current.checksum
         ]
     }
 
@@ -154,6 +154,8 @@ def save_watch(request, ident: int, payload: WatchInput):
     values = {"stage": payload.stage, "note": payload.note}
     if payload.mark_seen:
         values["seen_notice"] = obj.current
+        values["seen_checksum"] = obj.current.checksum
+        values["seen_payload"] = obj.current.payload
     Watch.objects.update_or_create(user=request.user, opportunity=obj, defaults=values)
     return {"saved": True}
 
