@@ -112,3 +112,17 @@ def test_saved_search_ownership_and_watch_isolation(notice):
     assert b.get("/api/watchlist").json()["items"] == []
     assert a.get("/api/watchlist").json()["items"][0]["note"] == "Private note"
     assert Client().get("/api/watchlist").status_code == 401
+
+
+def test_same_publication_revision_appears_in_change_inbox(notice, source):
+    user = User.objects.create_user("revision-reviewer")
+    client = Client()
+    client.force_login(user)
+    client.put(f"/api/watchlist/{notice.opportunity_id}", "{}", content_type="application/json")
+    source["title"] = "A corrected source title"
+    ingest(source, b"synthetic revised source bytes", "xml")
+    item = client.get("/api/inbox").json()["items"][0]
+    assert item["changes"]["fields"][0]["field"] == "title"
+    assert client.get("/api/watchlist").json()["items"][0]["updated"]
+    client.put(f"/api/watchlist/{notice.opportunity_id}", "{}", content_type="application/json")
+    assert client.get("/api/inbox").json()["items"] == []
