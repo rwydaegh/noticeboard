@@ -106,6 +106,7 @@ def retrieve(query="", country="", state="", mode="keyword", limit=50, offset=0)
         except Exception:
             log.exception("Search unavailable; using database retrieval")
             ranked = None
+            warnings.append("Basic search.")
     queryset = Opportunity.objects.exclude(current=None).select_related("current")
     if country:
         queryset = queryset.filter(current__country=country)

@@ -5,11 +5,12 @@ import httpx
 import pytest
 from conftest import FIXTURE
 from django.contrib.auth.models import User
-from django.test import Client
+from django.test import Client, override_settings
 
 from procurement.ingestion import ingest, request_page, sync_ted
 from procurement.models import Artifact, Notice, Opportunity
 from procurement.parsing import parse_search, status
+from procurement.search import retrieve
 from procurement.serialization import compare
 
 
@@ -126,3 +127,10 @@ def test_same_publication_revision_appears_in_change_inbox(notice, source):
     assert client.get("/api/watchlist").json()["items"][0]["updated"]
     client.put(f"/api/watchlist/{notice.opportunity_id}", "{}", content_type="application/json")
     assert client.get("/api/inbox").json()["items"] == []
+
+
+def test_database_fallback_is_explicit(notice):
+    with override_settings(SEARCH_URL="http://127.0.0.1:1"):
+        result = retrieve(notice.title.split()[0])
+    assert result["items"][0].pk == notice.opportunity_id
+    assert result["backend"] == "database" and result["warnings"]
