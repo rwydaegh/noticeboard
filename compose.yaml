@@ -1,0 +1,36 @@
+name: noticeboard
+services:
+  postgres:
+    restart: unless-stopped
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_DB: noticeboard
+      POSTGRES_USER: noticeboard
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-noticeboard}
+    ports: ["127.0.0.1:55439:5432"]
+    volumes: ["postgres:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U noticeboard"]
+      interval: 5s
+      retries: 12
+  search:
+    restart: unless-stopped
+    image: opensearchproject/opensearch:3.2.0
+    environment:
+      discovery.type: single-node
+      DISABLE_SECURITY_PLUGIN: "true"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+      bootstrap.memory_lock: "true"
+    ulimits:
+      memlock: {soft: -1, hard: -1}
+      nofile: {soft: 65536, hard: 65536}
+    ports: ["127.0.0.1:19239:9200"]
+    volumes: ["search:/usr/share/opensearch/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health"]
+      interval: 10s
+      retries: 18
+volumes:
+  postgres:
+  search:

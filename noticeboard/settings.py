@@ -1,6 +1,7 @@
 import os
 import secrets
 from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 PRIVATE_DIR = Path(os.environ.get("NOTICEBOARD_PRIVATE", BASE_DIR / "private"))
@@ -41,6 +42,17 @@ DATABASES = {
         "OPTIONS": {"timeout": 30},
     }
 }
+if url := os.environ.get("DATABASE_URL"):
+    parsed = urlparse(url)
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": parsed.path.lstrip("/"),
+        "USER": unquote(parsed.username or ""),
+        "PASSWORD": unquote(parsed.password or ""),
+        "HOST": parsed.hostname,
+        "PORT": parsed.port or 5432,
+        "CONN_MAX_AGE": 60,
+    }
 USE_TZ = True
 TIME_ZONE = "UTC"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
