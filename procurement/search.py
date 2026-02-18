@@ -1,5 +1,7 @@
+import fcntl
 import logging
 import re
+import uuid
 
 from django.conf import settings
 from django.db.models import Q
@@ -31,15 +33,70 @@ def document(notice):
 
 
 def index_collection(vectors=False):
+    with (settings.RUNTIME_DIR / "index.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        return _build_index(vectors)
+
+
+def _build_index(vectors):
     client = connection()
-    generation = settings.SEARCH_INDEX
-    client.indices.delete(index=generation, ignore=[404])
-    client.indices.create(index=generation)
-    notices = [
-        o.current for o in Opportunity.objects.exclude(current=None).select_related("current")
-    ]
-    total = _index_batch(client, notices, False, generation)
-    client.indices.refresh(index=generation)
+    alias = settings.SEARCH_INDEX
+    generation = alias + "-" + uuid.uuid4().hex
+    client.indices.create(
+        index=generation,
+        body={
+            "settings": {"index": {"knn": True, "number_of_shards": 1, "number_of_replicas": 0}},
+            "mappings": {
+                "_meta": {
+                    "vectors": vectors,
+                    "model": None,
+                },
+                "properties": {
+                    "opportunity_id": {"type": "integer"},
+                    "notice_id": {"type": "integer"},
+                    "checksum": {"type": "keyword"},
+                    "title": {"type": "text"},
+                    "description": {"type": "text"},
+                    "buyer": {"type": "text"},
+                    "country": {"type": "keyword"},
+                    "kind": {"type": "keyword"},
+                    "cpv": {"type": "keyword"},
+                    "published": {"type": "date"},
+                    "embedding": {
+                        "type": "knn_vector",
+                        "dimension": 384,
+                        "method": {"name": "hnsw", "space_type": "cosinesimil", "engine": "lucene"},
+                    },
+                },
+            },
+        },
+    )
+    try:
+        opportunities = Opportunity.objects.exclude(current=None).select_related("current")
+        total, batch = 0, []
+        for opportunity in opportunities.iterator(chunk_size=50):
+            batch.append(opportunity.current)
+            if len(batch) == 32:
+                total += _index_batch(client, batch, vectors, generation)
+                batch = []
+        total += _index_batch(client, batch, vectors, generation)
+        client.indices.refresh(index=generation)
+        old = (
+            list(client.indices.get_alias(name=alias))
+            if client.indices.exists_alias(name=alias)
+            else []
+        )
+        actions = [{"remove": {"index": name, "alias": alias}} for name in old]
+        actions.append({"add": {"index": generation, "alias": alias}})
+        client.indices.update_aliases(body={"actions": actions})
+    except Exception:
+        client.indices.delete(index=generation, ignore=[404])
+        raise
+    for name in old:
+        try:
+            client.indices.delete(index=name)
+        except Exception:
+            log.warning("Could not remove retired derived index %s", name)
     return total
 
 
