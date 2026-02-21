@@ -2,6 +2,7 @@ import fcntl
 import logging
 import re
 import uuid
+from functools import lru_cache
 
 from django.conf import settings
 from django.db.models import Q
@@ -11,6 +12,25 @@ from .models import Opportunity
 from .parsing import status
 
 log = logging.getLogger(__name__)
+
+
+@lru_cache(maxsize=1)
+def embedder():
+    from fastembed import TextEmbedding
+    from huggingface_hub import snapshot_download
+
+    snapshot = snapshot_download(
+        "qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q",
+        revision="faf4aa4225822f3bc6376869cb1164e8e3feedd0",
+        allow_patterns=["*.json", "*.txt", "*.onnx"],
+        cache_dir=str(settings.MODEL_CACHE),
+    )
+    return TextEmbedding(
+        specific_model_path=snapshot,
+        model_name=settings.EMBEDDING_MODEL,
+        cache_dir=str(settings.MODEL_CACHE),
+        threads=2,
+    )
 
 
 def connection():
@@ -49,7 +69,7 @@ def _build_index(vectors):
             "mappings": {
                 "_meta": {
                     "vectors": vectors,
-                    "model": None,
+                    "model": settings.EMBEDDING_MODEL if vectors else None,
                 },
                 "properties": {
                     "opportunity_id": {"type": "integer"},
@@ -104,6 +124,12 @@ def _index_batch(client, notices, vectors, generation):
     if not notices:
         return 0
     docs = [document(n) for n in notices]
+    if vectors:
+        embeddings = embedder().embed(
+            [d["title"] + "\n" + d["description"][:5000] for d in docs], batch_size=16
+        )
+        for doc, vector in zip(docs, embeddings, strict=True):
+            doc["embedding"] = vector.tolist()
     actions = [{"_index": generation, "_id": d["opportunity_id"], "_source": d} for d in docs]
     helpers.bulk(client, actions)
     return len(docs)
