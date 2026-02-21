@@ -186,6 +186,30 @@ def retrieve(query="", country="", state="", mode="keyword", limit=50, offset=0)
             )
             ranked = lexical
             backend = "OpenSearch BM25"
+            if query and mode == "hybrid":
+                candidate_limit = 200
+                vector = next(embedder().query_embed(query)).tolist()
+                knn = {"vector": vector, "k": 100}
+                if country:
+                    knn["filter"] = {"term": {"country": country}}
+                response = client.search(
+                    index=settings.SEARCH_INDEX,
+                    body={"size": 100, "query": {"knn": {"embedding": knn}}},
+                )
+                semantic = [h["_source"]["opportunity_id"] for h in response["hits"]["hits"]]
+                indexed_versions.update(
+                    {
+                        hit["_source"]["opportunity_id"]: hit["_source"]
+                        for hit in response["hits"]["hits"]
+                    }
+                )
+                if not semantic:
+                    warnings.append("Keyword results only.")
+                for items in (lexical[:100], semantic):
+                    for rank, ident in enumerate(items, 1):
+                        scores[ident] = scores.get(ident, 0) + 1 / (60 + rank)
+                ranked = sorted(scores, key=lambda i: (-scores[i], i))
+                backend = "OpenSearch BM25 + multilingual vectors"
         except Exception:
             log.exception("Search unavailable; using database retrieval")
             ranked = None
