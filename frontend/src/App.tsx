@@ -48,6 +48,7 @@ export default function App() {
     if (user) savedQueries();
   }, [user]);
   const [mode, setMode] = useState("keyword");
+  const [coverage, setCoverage] = useState<unknown>();
 
   return (
     <main>
@@ -253,6 +254,12 @@ export default function App() {
           ))}
         </section>
       )}
+      <button
+        onClick={() => request("/search-status").then(setCoverage).catch(fail)}
+      >
+        Check index coverage
+      </button>
+      {coverage !== undefined && <pre>{JSON.stringify(coverage, null, 2)}</pre>}
     </main>
   );
 }

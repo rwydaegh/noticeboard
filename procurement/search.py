@@ -33,6 +33,31 @@ def embedder():
     )
 
 
+def index_status():
+    expected = Opportunity.objects.exclude(current=None).count()
+    try:
+        client = connection()
+        documents = client.count(index=settings.SEARCH_INDEX)["count"]
+        vectors = client.count(
+            index=settings.SEARCH_INDEX, body={"query": {"exists": {"field": "embedding"}}}
+        )["count"]
+        return {
+            "available": True,
+            "documents": documents,
+            "vectors": vectors,
+            "expected": expected,
+            "counts_match": documents == expected,
+        }
+    except Exception:
+        return {
+            "available": False,
+            "documents": 0,
+            "vectors": 0,
+            "expected": expected,
+            "counts_match": False,
+        }
+
+
 def connection():
     return OpenSearch(settings.SEARCH_URL, timeout=15, max_retries=2, retry_on_timeout=True)
 
