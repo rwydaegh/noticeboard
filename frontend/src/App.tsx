@@ -16,7 +16,7 @@ export default function App() {
     setError(e instanceof Error ? e.message : String(e));
   }
   function load() {
-    request<Results>("/notices?" + new URLSearchParams({ q, country }))
+    request<Results>("/notices?" + new URLSearchParams({ q, country, mode }))
       .then(setResults)
       .catch(fail);
   }
@@ -47,6 +47,8 @@ export default function App() {
   useEffect(() => {
     if (user) savedQueries();
   }, [user]);
+  const [mode, setMode] = useState("keyword");
+  const [coverage, setCoverage] = useState<unknown>();
 
   return (
     <main>
@@ -107,6 +109,13 @@ export default function App() {
             onChange={(e) => setCountry(e.target.value)}
             maxLength={3}
           />
+        </label>
+        <label>
+          Search mode{" "}
+          <select value={mode} onChange={(e) => setMode(e.target.value)}>
+            <option value="keyword">Keyword</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
         </label>
         <button>Search</button>
       </form>
@@ -245,6 +254,12 @@ export default function App() {
           ))}
         </section>
       )}
+      <button
+        onClick={() => request("/search-status").then(setCoverage).catch(fail)}
+      >
+        Check index coverage
+      </button>
+      {coverage !== undefined && <pre>{JSON.stringify(coverage, null, 2)}</pre>}
     </main>
   );
 }

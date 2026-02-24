@@ -2,6 +2,7 @@ import fcntl
 import logging
 import re
 import uuid
+from functools import lru_cache
 
 from django.conf import settings
 from django.db.models import Q
@@ -11,6 +12,50 @@ from .models import Opportunity
 from .parsing import status
 
 log = logging.getLogger(__name__)
+
+
+@lru_cache(maxsize=1)
+def embedder():
+    from fastembed import TextEmbedding
+    from huggingface_hub import snapshot_download
+
+    snapshot = snapshot_download(
+        "qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q",
+        revision="faf4aa4225822f3bc6376869cb1164e8e3feedd0",
+        allow_patterns=["*.json", "*.txt", "*.onnx"],
+        cache_dir=str(settings.MODEL_CACHE),
+    )
+    return TextEmbedding(
+        specific_model_path=snapshot,
+        model_name=settings.EMBEDDING_MODEL,
+        cache_dir=str(settings.MODEL_CACHE),
+        threads=2,
+    )
+
+
+def index_status():
+    expected = Opportunity.objects.exclude(current=None).count()
+    try:
+        client = connection()
+        documents = client.count(index=settings.SEARCH_INDEX)["count"]
+        vectors = client.count(
+            index=settings.SEARCH_INDEX, body={"query": {"exists": {"field": "embedding"}}}
+        )["count"]
+        return {
+            "available": True,
+            "documents": documents,
+            "vectors": vectors,
+            "expected": expected,
+            "counts_match": documents == expected,
+        }
+    except Exception:
+        return {
+            "available": False,
+            "documents": 0,
+            "vectors": 0,
+            "expected": expected,
+            "counts_match": False,
+        }
 
 
 def connection():
@@ -49,7 +94,7 @@ def _build_index(vectors):
             "mappings": {
                 "_meta": {
                     "vectors": vectors,
-                    "model": None,
+                    "model": settings.EMBEDDING_MODEL if vectors else None,
                 },
                 "properties": {
                     "opportunity_id": {"type": "integer"},
@@ -104,6 +149,12 @@ def _index_batch(client, notices, vectors, generation):
     if not notices:
         return 0
     docs = [document(n) for n in notices]
+    if vectors:
+        embeddings = embedder().embed(
+            [d["title"] + "\n" + d["description"][:5000] for d in docs], batch_size=16
+        )
+        for doc, vector in zip(docs, embeddings, strict=True):
+            doc["embedding"] = vector.tolist()
     actions = [{"_index": generation, "_id": d["opportunity_id"], "_source": d} for d in docs]
     helpers.bulk(client, actions)
     return len(docs)
@@ -160,6 +211,30 @@ def retrieve(query="", country="", state="", mode="keyword", limit=50, offset=0)
             )
             ranked = lexical
             backend = "OpenSearch BM25"
+            if query and mode == "hybrid":
+                candidate_limit = 200
+                vector = next(embedder().query_embed(query)).tolist()
+                knn = {"vector": vector, "k": 100}
+                if country:
+                    knn["filter"] = {"term": {"country": country}}
+                response = client.search(
+                    index=settings.SEARCH_INDEX,
+                    body={"size": 100, "query": {"knn": {"embedding": knn}}},
+                )
+                semantic = [h["_source"]["opportunity_id"] for h in response["hits"]["hits"]]
+                indexed_versions.update(
+                    {
+                        hit["_source"]["opportunity_id"]: hit["_source"]
+                        for hit in response["hits"]["hits"]
+                    }
+                )
+                if not semantic:
+                    warnings.append("Keyword results only.")
+                for items in (lexical[:100], semantic):
+                    for rank, ident in enumerate(items, 1):
+                        scores[ident] = scores.get(ident, 0) + 1 / (60 + rank)
+                ranked = sorted(scores, key=lambda i: (-scores[i], i))
+                backend = "OpenSearch BM25 + multilingual vectors"
         except Exception:
             log.exception("Search unavailable; using database retrieval")
             ranked = None

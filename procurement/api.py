@@ -7,7 +7,7 @@ from ninja.security import django_auth
 from pydantic import Field
 
 from .models import ImportRun, Notice, Opportunity, SavedSearch, Watch
-from .search import retrieve
+from .search import index_status, retrieve
 from .serialization import compare, compare_payloads, serialize
 
 api = NinjaAPI(title="Noticeboard API", version="0.1.0")
@@ -195,3 +195,8 @@ def delete_search(request, ident: int):
     obj = get_object_or_404(SavedSearch, user=request.user, pk=ident)
     obj.delete()
     return {"deleted": True}
+
+
+@api.get("/search-status")
+def search_status(request):
+    return index_status()
