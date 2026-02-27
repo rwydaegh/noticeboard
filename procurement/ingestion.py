@@ -1,13 +1,14 @@
 import json
 import logging
 import time
+from pathlib import Path
 
 import httpx
 from django.db import transaction
 from django.utils import timezone
 
 from .models import Artifact, ImportRun, Lot, Notice, Opportunity
-from .parsing import checksum, parse_search
+from .parsing import checksum, parse_search, parse_xml
 
 log = logging.getLogger(__name__)
 TED_API = "https://api.ted.europa.eu/v3/notices/search"
@@ -115,6 +116,23 @@ def ingest(parsed, raw, format="json"):
         opportunity.current = candidate
         opportunity.save(update_fields=["current", "updated_at"])
     return notice, "created" if created else "updated"
+
+
+def import_xml(paths):
+    run = ImportRun.objects.create(query=f"XML files: {len(paths)}")
+    for path in paths:
+        try:
+            raw = Path(path).read_bytes()
+            _, outcome = ingest(parse_xml(raw), raw, "xml")
+            run.created += outcome == "created"
+            run.unchanged += outcome == "unchanged"
+        except Exception as exc:
+            run.errors.append({"record": Path(path).name, "error": str(exc)[:400]})
+        run.seen += 1
+    run.status = "partial" if run.errors else "complete"
+    run.finished_at = timezone.now()
+    run.save()
+    return run
 
 
 def sync_ted(query, limit=250, client=None):

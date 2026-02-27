@@ -70,6 +70,22 @@ def compare_payloads(old, new):
         a, b = old.get(key), new.get(key)
         if a != b:
             fields.append({"field": key, "before": a, "after": b})
+    old_lots = {lot["identifier"]: lot for lot in old.get("lots", [])}
+    new_lots = {lot["identifier"]: lot for lot in new.get("lots", [])}
+    for ident in sorted(old_lots.keys() | new_lots.keys()):
+        for field in [
+            "title",
+            "description",
+            "deadline",
+            "value",
+            "currency",
+            "documents",
+            "requirements",
+            "duration",
+        ]:
+            a, b = old_lots.get(ident, {}).get(field), new_lots.get(ident, {}).get(field)
+            if a != b:
+                fields.append({"field": f"{ident}, {field}", "before": a, "after": b})
     return {
         "before": old.get("publication_id"),
         "after": new.get("publication_id"),

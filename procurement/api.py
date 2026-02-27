@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from ninja import NinjaAPI, Schema
 from ninja.errors import HttpError
@@ -55,6 +56,25 @@ def notices(
 @api.get("/notices/{ident}")
 def detail(request, ident: int):
     return serialize(opportunity(ident), detail=True)
+
+
+@api.get("/notices/{ident}/source")
+def source_record(request, ident: int, publication: str = ""):
+    obj = opportunity(ident)
+    notice = (
+        get_object_or_404(Notice, opportunity=obj, publication_id=publication)
+        if publication
+        else obj.current
+    )
+    artifact = get_object_or_404(notice.artifacts, checksum=notice.checksum)
+    return HttpResponse(
+        artifact.content,
+        content_type="text/plain; charset=utf-8",
+        headers={
+            "Content-Disposition": f'attachment; filename="{notice.publication_id}.{artifact.format}"',
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 
 @api.get("/notices/{ident}/compare")

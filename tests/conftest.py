@@ -1,19 +1,18 @@
-import json
 from pathlib import Path
 
 import pytest
 
 from procurement.ingestion import ingest
-from procurement.parsing import parse_search
+from procurement.parsing import parse_xml
 
-FIXTURE = Path(__file__).parent / "fixtures/synthetic-search.json"
+FIXTURE = Path(__file__).parent / "fixtures/synthetic-notice.xml"
 
 
 @pytest.fixture
 def source():
-    return parse_search(json.loads(FIXTURE.read_text()))
+    return parse_xml(FIXTURE.read_bytes())
 
 
 @pytest.fixture
 def notice(db, source):
-    return ingest(source, FIXTURE.read_bytes())[0]
+    return ingest(source, FIXTURE.read_bytes(), "xml")[0]

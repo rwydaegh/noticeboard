@@ -230,6 +230,14 @@ export default function App() {
             {selected.comparison && (
               <pre>{JSON.stringify(selected.comparison.fields, null, 2)}</pre>
             )}
+            <h3>Lots</h3>
+            {selected.lots?.map((l) => (
+              <section key={l.identifier}>
+                <h4>{l.title}</h4>
+                <p>{l.description}</p>
+                <p>{l.deadline || "Exact deadline unknown"}</p>
+              </section>
+            ))}
           </aside>
         )}
       </div>

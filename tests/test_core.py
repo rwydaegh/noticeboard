@@ -1,15 +1,17 @@
 import copy
 import json
+from datetime import UTC, datetime
 
 import httpx
 import pytest
 from conftest import FIXTURE
+from defusedxml.common import EntitiesForbidden
 from django.contrib.auth.models import User
 from django.test import Client, override_settings
 
 from procurement.ingestion import ingest, request_page, sync_ted
 from procurement.models import Artifact, Notice, Opportunity
-from procurement.parsing import parse_search, status
+from procurement.parsing import deadline, parse_search, parse_xml, status
 from procurement.search import retrieve
 from procurement.serialization import compare
 
@@ -134,3 +136,26 @@ def test_database_fallback_is_explicit(notice):
         result = retrieve(notice.title.split()[0])
     assert result["items"][0].pk == notice.opportunity_id
     assert result["backend"] == "database" and result["warnings"]
+
+
+@pytest.mark.parametrize(
+    "day,clock", [("2026-04-03", ""), ("2026-04-03", "11:00:00"), ("bad", "bad")]
+)
+def test_incomplete_deadlines_never_become_exact(day, clock):
+    assert deadline(day, clock) is None
+
+
+def test_mixed_lot_deadlines_do_not_claim_closed(source):
+    source["lots"].append({"identifier": "LOT-0002", "deadline": None})
+    assert status(source, datetime(2027, 1, 1, tzinfo=UTC)) == "deadline unverified"
+    source["kind"] = "can-standard"
+    assert status(source) == "award"
+    source["cancelled"] = True
+    assert status(source) == "cancelled"
+
+
+def test_xml_entities_are_rejected():
+    with pytest.raises(EntitiesForbidden):
+        parse_xml(
+            b'<!DOCTYPE x [<!ENTITY secret SYSTEM "file:///etc/passwd">]><ContractNotice>&secret;</ContractNotice>'
+        )
