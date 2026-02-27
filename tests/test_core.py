@@ -159,3 +159,16 @@ def test_xml_entities_are_rejected():
         parse_xml(
             b'<!DOCTYPE x [<!ENTITY secret SYSTEM "file:///etc/passwd">]><ContractNotice>&secret;</ContractNotice>'
         )
+
+
+def test_metadata_cannot_downgrade_authoritative_xml(notice, source):
+    metadata = {
+        **source,
+        "quality": "search",
+        "procedure": "incomplete",
+        "title": "Incomplete metadata",
+    }
+    assert ingest(metadata, metadata)[1] == "unchanged"
+    notice.refresh_from_db()
+    assert notice.quality == "xml"
+    assert notice.title != metadata["title"]

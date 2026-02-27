@@ -61,6 +61,8 @@ def ingest(parsed, raw, format="json"):
     digest = checksum(raw)
     existing = Notice.objects.filter(publication_id=parsed["publication_id"]).first()
     key = "ted:" + parsed["procedure"]
+    if existing and existing.quality == "xml" and parsed["quality"] != "xml":
+        return existing, "unchanged"
     opportunity, _ = Opportunity.objects.get_or_create(source_key=key)
     opportunity = Opportunity.objects.select_for_update().get(pk=opportunity.pk)
     if existing and existing.checksum == digest and existing.payload == parsed:
