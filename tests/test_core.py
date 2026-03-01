@@ -172,3 +172,11 @@ def test_metadata_cannot_downgrade_authoritative_xml(notice, source):
     notice.refresh_from_db()
     assert notice.quality == "xml"
     assert notice.title != metadata["title"]
+
+
+def test_csv_formula_injection_is_neutralized(notice):
+    notice.title = '=HYPERLINK("https://example.invalid")'
+    notice.save()
+    with override_settings(SEARCH_URL=""):
+        response = Client().get("/api/export.csv")
+    assert b"'=HYPERLINK" in response.content

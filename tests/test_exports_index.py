@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django.test import Client
 
+from procurement.exports import calendar, fold
 from procurement.ingestion import ingest
 from procurement.search import index_collection
 
@@ -40,3 +41,16 @@ def test_successful_index_build_switches_alias_after_refresh(notice):
         assert index_collection(False) == 1
     calls = [call[0] for call in client.indices.mock_calls]
     assert calls.index("refresh") < calls.index("update_aliases") < calls.index("delete")
+
+
+def test_calendar_escapes_and_preserves_utc_deadline(notice):
+    data = calendar([notice])
+    assert "DTSTART:20260403T100000Z" in data
+    assert data.count("BEGIN:VEVENT") == 1
+    assert all(len(line.encode()) <= 75 for line in data.split("\r\n"))
+    assert "\r\n " in fold("SUMMARY:" + "é" * 100)
+
+
+def test_unknown_deadline_never_creates_calendar_event(notice):
+    notice.lots.update(deadline=None)
+    assert "BEGIN:VEVENT" not in calendar([notice])

@@ -238,6 +238,11 @@ export default function App() {
                 <p>{l.deadline || "Exact deadline unknown"}</p>
               </section>
             ))}
+            <p>
+              <a href={"/api/notices/" + selected.id + "/calendar.ics"}>
+                Calendar
+              </a>
+            </p>
           </aside>
         )}
       </div>
@@ -262,6 +267,15 @@ export default function App() {
           ))}
         </section>
       )}
+      {user && (
+        <p>
+          <a href="/api/watch-calendar.ics">Saved deadlines</a> ·{" "}
+          <a href="/api/review-export">Review export</a>
+        </p>
+      )}
+      <a href={"/api/export.csv?" + new URLSearchParams({ q, country })}>
+        Export results
+      </a>
       <button
         onClick={() => request("/search-status").then(setCoverage).catch(fail)}
       >

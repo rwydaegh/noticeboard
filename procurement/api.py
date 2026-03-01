@@ -1,3 +1,5 @@
+import csv
+import io
 from datetime import date
 
 from django.http import HttpResponse
@@ -7,6 +9,7 @@ from ninja.errors import HttpError
 from ninja.security import django_auth
 from pydantic import Field
 
+from .exports import calendar
 from .models import ImportRun, Notice, Opportunity, SavedSearch, Watch
 from .search import index_status, retrieve
 from .serialization import compare, compare_payloads, serialize
@@ -74,6 +77,15 @@ def source_record(request, ident: int, publication: str = ""):
             "Content-Disposition": f'attachment; filename="{notice.publication_id}.{artifact.format}"',
             "X-Content-Type-Options": "nosniff",
         },
+    )
+
+
+@api.get("/notices/{ident}/calendar.ics")
+def notice_calendar(request, ident: int):
+    return HttpResponse(
+        calendar([opportunity(ident).current]),
+        content_type="text/calendar; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="deadline.ics"'},
     )
 
 
@@ -146,6 +158,31 @@ def watchlist(request):
     }
 
 
+@api.get("/watch-calendar.ics", auth=django_auth)
+def watch_calendar(request):
+    watches = (
+        Watch.objects.filter(user=request.user)
+        .exclude(stage="pass")
+        .exclude(opportunity__current=None)
+        .select_related("opportunity__current")
+    )
+    return HttpResponse(
+        calendar([w.opportunity.current for w in watches]),
+        content_type="text/calendar; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="saved-deadlines.ics"'},
+    )
+
+
+@api.get("/review-export", auth=django_auth)
+def review_export(request):
+    result = watchlist(request)
+    return HttpResponse(
+        __import__("json").dumps(result, ensure_ascii=False, indent=2),
+        content_type="application/json",
+        headers={"Content-Disposition": 'attachment; filename="noticeboard-review.json"'},
+    )
+
+
 @api.get("/inbox", auth=django_auth)
 def inbox(request):
     watches = (
@@ -215,6 +252,40 @@ def delete_search(request, ident: int):
     obj = get_object_or_404(SavedSearch, user=request.user, pk=ident)
     obj.delete()
     return {"deleted": True}
+
+
+@api.get("/export.csv")
+def export_csv(request, q: str = "", country: str = "", status: str = "", mode: str = "keyword"):
+    if mode not in {"keyword", "hybrid"}:
+        raise HttpError(400, "Unknown search mode")
+    result = retrieve(q[:500], country[:3], status[:20], mode=mode, limit=1000)
+    stream = io.StringIO()
+    writer = csv.writer(stream)
+    writer.writerow(
+        ["publication_id", "title", "buyer", "country", "status", "published", "source_url"]
+    )
+    for obj in result["items"]:
+        row = serialize(obj)
+        values = [
+            str(row[k])
+            for k in [
+                "publication_id",
+                "title",
+                "buyer",
+                "country",
+                "status",
+                "published",
+                "source_url",
+            ]
+        ]
+        writer.writerow(
+            ["'" + v if v.startswith(("=", "+", "-", "@", "\t", "\r")) else v for v in values]
+        )
+    return HttpResponse(
+        stream.getvalue(),
+        content_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="notices.csv"'},
+    )
 
 
 @api.get("/search-status")
