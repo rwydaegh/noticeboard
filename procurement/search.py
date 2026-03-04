@@ -272,3 +272,14 @@ def retrieve(query="", country="", state="", mode="keyword", limit=50, offset=0)
         "scores": scores,
         "candidate_limit": candidate_limit if ranked is not None else 2000,
     }
+
+
+def source_matches(notice, query):
+    words = [w.lower() for w in re.findall(r"\w+", query) if len(w) > 2]
+    parts = re.split(r"(?<=[.!?])\s+|\n+", notice.description)
+    matches = sorted(enumerate(parts), key=lambda p: -sum(w in p[1].lower() for w in words))
+    return [
+        {"text": p, "source": notice.publication_id, "field": "description", "paragraph": i + 1}
+        for i, p in matches[:3]
+        if p
+    ]

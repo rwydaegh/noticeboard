@@ -1,3 +1,4 @@
+export const demo = false;
 let token = "";
 export async function request<T>(
   path: string,

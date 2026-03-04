@@ -10,8 +10,8 @@ from ninja.security import django_auth
 from pydantic import Field
 
 from .exports import calendar
-from .models import ImportRun, Notice, Opportunity, SavedSearch, Watch
-from .search import index_status, retrieve
+from .models import ImportRun, Notice, Opportunity, Profile, SavedSearch, Watch
+from .search import index_status, retrieve, source_matches
 from .serialization import compare, compare_payloads, serialize
 
 api = NinjaAPI(title="Noticeboard API", version="0.1.0")
@@ -95,6 +95,17 @@ def compare_versions(request, ident: int, before: str, after: str):
     old = get_object_or_404(Notice, opportunity=obj, publication_id=before)
     new = get_object_or_404(Notice, opportunity=obj, publication_id=after)
     return compare(old, new)
+
+
+@api.get("/notices/{ident}/related")
+def related(request, ident: int):
+    obj = opportunity(ident)
+    result = retrieve(obj.current.title[:500], mode="hybrid", limit=8)
+    return {
+        "items": [serialize(o) for o in result["items"] if o.pk != obj.pk][:5],
+        "warnings": result["warnings"],
+        "backend": result["backend"],
+    }
 
 
 @api.get("/collection")
@@ -252,6 +263,47 @@ def delete_search(request, ident: int):
     obj = get_object_or_404(SavedSearch, user=request.user, pk=ident)
     obj.delete()
     return {"deleted": True}
+
+
+class ProfileInput(Schema):
+    description: str = Field(default="", max_length=3000)
+    countries: list[str] = Field(default_factory=list, max_length=50)
+    exclusions: list[str] = Field(default_factory=list, max_length=30)
+
+
+@api.get("/profile", auth=django_auth)
+def get_profile(request):
+    obj, _ = Profile.objects.get_or_create(user=request.user)
+    return {
+        "description": obj.description,
+        "countries": obj.countries,
+        "exclusions": obj.exclusions,
+    }
+
+
+@api.put("/profile", auth=django_auth)
+def set_profile(request, payload: ProfileInput):
+    Profile.objects.update_or_create(user=request.user, defaults=payload.dict())
+    return {"saved": True}
+
+
+@api.get("/recommendations", auth=django_auth)
+def recommendations(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    if not profile.description:
+        return {"items": [], "warnings": ["Add a description of your work to find matches."]}
+    result = retrieve(profile.description[:500], mode="hybrid", limit=100)
+    items = []
+    for obj in result["items"]:
+        if profile.countries and obj.current.country not in profile.countries:
+            continue
+        haystack = (obj.current.title + " " + obj.current.description).lower()
+        if any(ex.lower() in haystack for ex in profile.exclusions if ex):
+            continue
+        items.append(
+            {**serialize(obj), "excerpts": source_matches(obj.current, profile.description)}
+        )
+    return {"items": items[:30], "warnings": result["warnings"], "backend": result["backend"]}
 
 
 @api.get("/export.csv")

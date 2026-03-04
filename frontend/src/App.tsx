@@ -49,6 +49,7 @@ export default function App() {
   }, [user]);
   const [mode, setMode] = useState("keyword");
   const [coverage, setCoverage] = useState<unknown>();
+  const [profile, setProfile] = useState("");
 
   return (
     <main>
@@ -243,6 +244,19 @@ export default function App() {
                 Calendar
               </a>
             </p>
+            <button
+              onClick={() =>
+                request<{
+                  items: Notice[];
+                  warnings: string[];
+                  backend: string;
+                }>("/notices/" + selected.id + "/related")
+                  .then((r) => setResults({ ...r, total: r.items.length }))
+                  .catch(fail)
+              }
+            >
+              Related notices
+            </button>
           </aside>
         )}
       </div>
@@ -276,6 +290,36 @@ export default function App() {
       <a href={"/api/export.csv?" + new URLSearchParams({ q, country })}>
         Export results
       </a>
+      {user && (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            request("/profile", "PUT", {
+              description: profile,
+              countries: [],
+              exclusions: [],
+            })
+              .then(() =>
+                request<{
+                  items: Notice[];
+                  warnings: string[];
+                  backend: string;
+                }>("/recommendations"),
+              )
+              .then((r) => setResults({ ...r, total: r.items.length }))
+              .catch(fail);
+          }}
+        >
+          <label>
+            Describe your work{" "}
+            <textarea
+              value={profile}
+              onChange={(e) => setProfile(e.target.value)}
+            />
+          </label>
+          <button>Find matches</button>
+        </form>
+      )}
       <button
         onClick={() => request("/search-status").then(setCoverage).catch(fail)}
       >
