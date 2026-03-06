@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { request, authenticate, signOut } from "./api";
-import type { Notice, Results, Watch, SavedSearch } from "./types";
+import type { Notice, Results, Watch, SavedSearch, Answer } from "./types";
 
 export default function App() {
   const [q, setQ] = useState("");
@@ -50,6 +50,8 @@ export default function App() {
   const [mode, setMode] = useState("keyword");
   const [coverage, setCoverage] = useState<unknown>();
   const [profile, setProfile] = useState("");
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState<Answer>();
 
   return (
     <main>
@@ -257,6 +259,39 @@ export default function App() {
             >
               Related notices
             </button>
+            {user && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  request<Answer>("/notices/" + selected.id + "/ask", "POST", {
+                    question,
+                    use_model: false,
+                  })
+                    .then(setAnswer)
+                    .catch(fail);
+                }}
+              >
+                <label>
+                  Find source passages{" "}
+                  <input
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                  />
+                </label>
+                <button>Ask</button>
+              </form>
+            )}
+            {answer && (
+              <section>
+                <p>{answer.mode}</p>
+                {answer.claims.map((c, i) => (
+                  <blockquote key={i}>
+                    {c.answer}
+                    <p>{c.quote}</p>
+                  </blockquote>
+                ))}
+              </section>
+            )}
           </aside>
         )}
       </div>

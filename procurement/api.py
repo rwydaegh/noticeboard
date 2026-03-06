@@ -9,6 +9,7 @@ from ninja.errors import HttpError
 from ninja.security import django_auth
 from pydantic import Field
 
+from .assistance import assist
 from .exports import calendar
 from .models import ImportRun, Notice, Opportunity, Profile, SavedSearch, Watch
 from .search import index_status, retrieve, source_matches
@@ -80,6 +81,11 @@ def source_record(request, ident: int, publication: str = ""):
     )
 
 
+@api.get("/notices/{ident}/matches")
+def matches(request, ident: int, q: str):
+    return {"excerpts": source_matches(opportunity(ident).current, q[:500])}
+
+
 @api.get("/notices/{ident}/calendar.ics")
 def notice_calendar(request, ident: int):
     return HttpResponse(
@@ -106,6 +112,21 @@ def related(request, ident: int):
         "warnings": result["warnings"],
         "backend": result["backend"],
     }
+
+
+class Question(Schema):
+    question: str = Field(min_length=3, max_length=500)
+    use_model: bool = False
+
+
+@api.post("/notices/{ident}/ask", auth=django_auth)
+def ask(request, ident: int, payload: Question):
+    try:
+        return assist(opportunity(ident).current, payload.question, payload.use_model)
+    except ValueError as exc:
+        raise HttpError(422, str(exc)) from exc
+    except Exception as exc:
+        raise HttpError(503, "The model request failed. Source excerpts remain available.") from exc
 
 
 @api.get("/collection")
