@@ -3,8 +3,11 @@ import secrets
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
+from dotenv import load_dotenv
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 PRIVATE_DIR = Path(os.environ.get("NOTICEBOARD_PRIVATE", BASE_DIR / "private"))
+load_dotenv(BASE_DIR / "runtime/local.env")
 RUNTIME_DIR = Path(os.environ.get("NOTICEBOARD_RUNTIME", BASE_DIR / "runtime"))
 RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
 _secret = RUNTIME_DIR / ".secret"
