@@ -12,6 +12,8 @@ dependencies = [
   "fastembed==0.7.4",
   "defusedxml==0.7.1",
   "mcp==1.25.0",
+  "whitenoise==6.11.0",
+  "gunicorn==23.0.0",
   "huggingface-hub==1.2.4"
 ]
 

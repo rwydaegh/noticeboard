@@ -1,0 +1,15 @@
+private
+archive
+runtime
+.venv
+**/__pycache__
+frontend/node_modules
+.pytest_cache
+.ruff_cache
+dist
+
+.git
+.env
+staticfiles
+frontend/dist
+frontend/dist-demo
