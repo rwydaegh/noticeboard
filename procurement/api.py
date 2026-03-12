@@ -1,7 +1,10 @@
 import csv
 import io
+import secrets
 from datetime import date
 
+from django.conf import settings
+from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from ninja import NinjaAPI, Schema
@@ -11,8 +14,9 @@ from pydantic import Field
 
 from .assistance import assist
 from .exports import calendar
+from .ingestion import sync_ted
 from .models import ImportRun, Notice, Opportunity, Profile, SavedSearch, Watch
-from .search import index_status, retrieve, source_matches
+from .search import index_collection, index_status, retrieve, source_matches
 from .serialization import compare, compare_payloads, serialize
 
 api = NinjaAPI(title="Noticeboard API", version="0.1.0")
@@ -361,6 +365,40 @@ def export_csv(request, q: str = "", country: str = "", status: str = "", mode: 
     )
 
 
+@api.get("/health")
+def health(request):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT 1")
+        cursor.fetchone()
+    return {"status": "ok", "database": connection.vendor}
+
+
 @api.get("/search-status")
 def search_status(request):
     return index_status()
+
+
+class SyncInput(Schema):
+    query: str = Field(min_length=3, max_length=2000)
+    limit: int = Field(default=100, ge=1, le=5000)
+
+
+def check_ops(request):
+    token = request.headers.get("Authorization", "").removeprefix("Bearer ")
+    if not settings.OPS_TOKEN or not secrets.compare_digest(token, settings.OPS_TOKEN):
+        raise HttpError(403, "Operator token required")
+
+
+@api.post("/ops/sync")
+def sync(request, payload: SyncInput):
+    check_ops(request)
+    run = sync_ted(payload.query, payload.limit)
+    if run.status in {"failed", "partial"}:
+        raise HttpError(502, f"Import {run.pk} failed")
+    return run_json(run)
+
+
+@api.post("/ops/index")
+def index(request, vectors: bool = False):
+    check_ops(request)
+    return {"indexed": index_collection(vectors)}
