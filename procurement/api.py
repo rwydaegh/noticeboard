@@ -164,6 +164,11 @@ def run_json(run):
     }
 
 
+@api.get("/imports")
+def imports(request):
+    return {"items": [run_json(run) for run in ImportRun.objects.order_by("-started_at")[:20]]}
+
+
 class WatchInput(Schema):
     stage: str = Field(default="saved", pattern="^(saved|reviewing|pursue|pass)$")
     note: str = Field(default="", max_length=10000)

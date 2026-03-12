@@ -52,6 +52,7 @@ export default function App() {
   const [profile, setProfile] = useState("");
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<Answer>();
+  const [activity, setActivity] = useState<unknown>();
 
   return (
     <main>
@@ -361,6 +362,10 @@ export default function App() {
         Check index coverage
       </button>
       {coverage !== undefined && <pre>{JSON.stringify(coverage, null, 2)}</pre>}
+      <button onClick={() => request("/imports").then(setActivity).catch(fail)}>
+        Activity
+      </button>
+      {activity !== undefined && <pre>{JSON.stringify(activity, null, 2)}</pre>}
     </main>
   );
 }
