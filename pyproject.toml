@@ -15,6 +15,7 @@ dependencies = [
   "whitenoise==6.11.0",
   "gunicorn==23.0.0",
   "python-dotenv==1.2.1",
+  "prometheus-client==0.23.1",
   "huggingface-hub==1.2.4"
 ]
 
