@@ -9,6 +9,7 @@ from defusedxml.common import EntitiesForbidden
 from django.contrib.auth.models import User
 from django.test import Client, override_settings
 
+from procurement.assistance import Answer, validate_claims
 from procurement.ingestion import ingest, request_page, sync_ted
 from procurement.models import Artifact, Notice, Opportunity
 from procurement.parsing import deadline, parse_search, parse_xml, status
@@ -180,3 +181,16 @@ def test_csv_formula_injection_is_neutralized(notice):
     with override_settings(SEARCH_URL=""):
         response = Client().get("/api/export.csv")
     assert b"'=HYPERLINK" in response.content
+
+
+def test_quote_validation_rejects_invented_evidence():
+    answer = Answer.model_validate(
+        {
+            "claims": [
+                {"answer": "Stated", "quote": "The term is twenty four months."},
+                {"answer": "Invented", "quote": "No certifications are required."},
+            ]
+        }
+    )
+    accepted, rejected = validate_claims(answer, "The term is twenty  four months.")
+    assert len(accepted) == 1 and rejected == 1
