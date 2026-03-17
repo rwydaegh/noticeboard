@@ -53,6 +53,7 @@ export default function App() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<Answer>();
   const [activity, setActivity] = useState<unknown>();
+  const [useModel, setUseModel] = useState(false);
 
   return (
     <main>
@@ -266,7 +267,7 @@ export default function App() {
                   e.preventDefault();
                   request<Answer>("/notices/" + selected.id + "/ask", "POST", {
                     question,
-                    use_model: false,
+                    use_model: useModel,
                   })
                     .then(setAnswer)
                     .catch(fail);
@@ -278,6 +279,14 @@ export default function App() {
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                   />
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={useModel}
+                    onChange={(e) => setUseModel(e.target.checked)}
+                  />
+                  Request a model draft
                 </label>
                 <button>Ask</button>
               </form>

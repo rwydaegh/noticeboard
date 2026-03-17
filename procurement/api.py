@@ -32,7 +32,7 @@ def opportunity(pk):
 def session(request):
     return {
         "user": request.user.get_username() if request.user.is_authenticated else None,
-        "llm_available": False,
+        "llm_available": bool(settings.LLM_URL and settings.LLM_MODEL),
     }
 
 
