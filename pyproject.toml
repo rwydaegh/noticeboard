@@ -19,6 +19,9 @@ dependencies = [
   "huggingface-hub==1.2.4"
 ]
 
+[project.optional-dependencies]
+browser = ["playwright==1.57.0"]
+
 [dependency-groups]
 dev = ["pytest==8.4.2", "pytest-django==4.11.1", "ruff==0.14.10", "respx==0.22.0"]
 
