@@ -1,10 +1,12 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+from conftest import FIXTURE
 from django.test import Client
 
 from procurement.exports import calendar, fold
 from procurement.ingestion import ingest
+from procurement.models import Artifact
 from procurement.search import index_collection
 
 
@@ -54,3 +56,11 @@ def test_calendar_escapes_and_preserves_utc_deadline(notice):
 def test_unknown_deadline_never_creates_calendar_event(notice):
     notice.lots.update(deadline=None)
     assert "BEGIN:VEVENT" not in calendar([notice])
+
+
+def test_reparse_same_source_updates_payload_without_duplicate_artifact(notice, source):
+    source["warnings"] = ["New parser observation"]
+    assert ingest(source, FIXTURE.read_bytes(), "xml")[1] == "updated"
+    notice.refresh_from_db()
+    assert notice.payload["warnings"] == source["warnings"]
+    assert Artifact.objects.count() == 1

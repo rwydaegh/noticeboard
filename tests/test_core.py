@@ -194,3 +194,11 @@ def test_quote_validation_rejects_invented_evidence():
     )
     accepted, rejected = validate_claims(answer, "The term is twenty  four months.")
     assert len(accepted) == 1 and rejected == 1
+
+
+def test_synthetic_xml_preserves_deadline_timezone_and_lot(source):
+    assert source["country"] == "CZE"
+    assert source["lots"][0]["identifier"] == "LOT-0001"
+    assert source["lots"][0]["deadline"] == "2026-04-03T11:00:00+01:00"
+    assert status(source, datetime(2026, 4, 3, 9, 59, tzinfo=UTC)) == "open"
+    assert status(source, datetime(2026, 4, 3, 10, 0, tzinfo=UTC)) == "closed"
