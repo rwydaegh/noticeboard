@@ -11,7 +11,7 @@ from django.test import Client, override_settings
 
 from procurement.assistance import Answer, validate_claims
 from procurement.ingestion import ingest, request_page, sync_ted
-from procurement.models import Artifact, Notice, Opportunity
+from procurement.models import Artifact, Notice, Opportunity, Watch
 from procurement.parsing import deadline, parse_search, parse_xml, status
 from procurement.search import retrieve
 from procurement.serialization import compare
@@ -202,3 +202,24 @@ def test_synthetic_xml_preserves_deadline_timezone_and_lot(source):
     assert source["lots"][0]["deadline"] == "2026-04-03T11:00:00+01:00"
     assert status(source, datetime(2026, 4, 3, 9, 59, tzinfo=UTC)) == "open"
     assert status(source, datetime(2026, 4, 3, 10, 0, tzinfo=UTC)) == "closed"
+
+
+@pytest.mark.django_db
+def test_xml_regrouping_preserves_saved_work_and_old_link(source):
+    metadata = {**source, "quality": "search", "procedure": "temporary-group"}
+    initial, _ = ingest(metadata, metadata)
+    old_id = initial.opportunity_id
+    user = User.objects.create_user("reviewer")
+    watch = Watch.objects.create(
+        user=user,
+        opportunity=initial.opportunity,
+        note="Keep this review",
+        seen_notice=initial,
+        seen_checksum=initial.checksum,
+        seen_payload=metadata,
+    )
+    enriched, _ = ingest(source, FIXTURE.read_bytes(), "xml")
+    watch.refresh_from_db()
+    assert watch.opportunity_id == enriched.opportunity_id != old_id
+    assert watch.note == "Keep this review"
+    assert Client().get(f"/api/notices/{old_id}").json()["id"] == enriched.opportunity_id
