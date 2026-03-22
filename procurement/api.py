@@ -23,9 +23,14 @@ api = NinjaAPI(title="Noticeboard API", version="0.1.0")
 
 
 def opportunity(pk):
-    return get_object_or_404(
-        Opportunity.objects.select_related("current").exclude(current=None), pk=pk
-    )
+    for _ in range(8):
+        obj = get_object_or_404(Opportunity.objects.select_related("current"), pk=pk)
+        if obj.current_id:
+            return obj
+        if not obj.redirect_id:
+            break
+        pk = obj.redirect_id
+    raise HttpError(404, "Procedure not found")
 
 
 @api.get("/session")

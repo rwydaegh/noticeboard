@@ -4,6 +4,7 @@ from django.db import models
 
 class Opportunity(models.Model):
     source_key = models.CharField(max_length=180, unique=True)
+    redirect = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL)
     current = models.ForeignKey(
         "Notice", null=True, blank=True, on_delete=models.SET_NULL, related_name="current_for"
     )

@@ -7,7 +7,7 @@ import httpx
 from django.db import transaction
 from django.utils import timezone
 
-from .models import Artifact, ImportRun, Lot, Notice, Opportunity
+from .models import Artifact, ImportRun, Lot, Notice, Opportunity, Watch
 from .parsing import checksum, parse_search, parse_xml
 
 log = logging.getLogger(__name__)
@@ -83,6 +83,7 @@ def ingest(parsed, raw, format="json"):
         ]
     }
     defaults.update(opportunity=opportunity, payload=parsed, checksum=digest)
+    old_opportunity_id = existing.opportunity_id if existing else None
     notice, created = Notice.objects.update_or_create(
         publication_id=parsed["publication_id"], defaults=defaults
     )
@@ -117,6 +118,23 @@ def ingest(parsed, raw, format="json"):
     if opportunity.current_id != candidate.id:
         opportunity.current = candidate
         opportunity.save(update_fields=["current", "updated_at"])
+    if old_opportunity_id and old_opportunity_id != opportunity.id:
+        old = Opportunity.objects.select_for_update().get(pk=old_opportunity_id)
+        remaining = list(old.notices.all())
+        old.current = max(remaining, key=ordering) if remaining else None
+        if not remaining:
+            old.redirect = opportunity
+            for watch in Watch.objects.select_for_update().filter(opportunity=old):
+                target = Watch.objects.filter(user=watch.user, opportunity=opportunity).first()
+                if target:
+                    if watch.note and watch.note != target.note:
+                        target.note = (target.note + "\n\n" + watch.note).strip()
+                        target.save(update_fields=["note"])
+                    watch.delete()
+                else:
+                    watch.opportunity = opportunity
+                    watch.save(update_fields=["opportunity"])
+        old.save(update_fields=["current", "redirect", "updated_at"])
     return notice, "created" if created else "updated"
 
 
