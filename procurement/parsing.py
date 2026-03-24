@@ -109,6 +109,12 @@ def parse_xml(raw):
         value_node = lot.find(
             "{*}ProcurementProject/{*}RequestedTenderTotal/{*}EstimatedOverallContractAmount"
         )
+        duration_node = lot.find("{*}ProcurementProject/{*}PlannedPeriod/{*}DurationMeasure")
+        duration = (
+            {"value": clean(duration_node.text), "unit": duration_node.attrib.get("unitCode", "")}
+            if duration_node is not None
+            else None
+        )
         documents = [
             url
             for e in lot.findall(
@@ -127,6 +133,7 @@ def parse_xml(raw):
                 "title": find(lot, "{*}ProcurementProject/{*}Name"),
                 "description": find(lot, "{*}ProcurementProject/{*}Description"),
                 "deadline": deadline(day, clock),
+                "duration": duration,
                 "deadline_date": day,
                 "value": amount(value_node.text) if value_node is not None else None,
                 "currency": value_node.attrib.get("currencyID", "")

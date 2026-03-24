@@ -200,6 +200,7 @@ def test_synthetic_xml_preserves_deadline_timezone_and_lot(source):
     assert source["country"] == "CZE"
     assert source["lots"][0]["identifier"] == "LOT-0001"
     assert source["lots"][0]["deadline"] == "2026-04-03T11:00:00+01:00"
+    assert source["lots"][0]["duration"] == {"value": "24", "unit": "MONTH"}
     assert status(source, datetime(2026, 4, 3, 9, 59, tzinfo=UTC)) == "open"
     assert status(source, datetime(2026, 4, 3, 10, 0, tzinfo=UTC)) == "closed"
 

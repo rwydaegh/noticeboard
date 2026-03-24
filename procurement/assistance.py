@@ -27,6 +27,13 @@ def evidence_text(notice):
         sections.extend(
             [lot.get("title", ""), lot.get("description", ""), *lot.get("requirements", [])]
         )
+        if duration := lot.get("duration"):
+            unit = {"MONTH": "months", "DAY": "days", "YEAR": "years"}.get(
+                duration["unit"], duration["unit"]
+            )
+            sections.append(
+                f"Structured source field for {lot['identifier']}: contract duration {duration['value']} {unit}."
+            )
     return "\n".join(dict.fromkeys(s for s in sections if s))[:24000]
 
 
