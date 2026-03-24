@@ -223,3 +223,10 @@ def test_xml_regrouping_preserves_saved_work_and_old_link(source):
     assert watch.opportunity_id == enriched.opportunity_id != old_id
     assert watch.note == "Keep this review"
     assert Client().get(f"/api/notices/{old_id}").json()["id"] == enriched.opportunity_id
+
+
+def test_real_quote_does_not_validate_invented_numeric_claim():
+    answer = Answer.model_validate(
+        {"claims": [{"answer": "3 years", "quote": "The service is ordered as needed."}]}
+    )
+    assert validate_claims(answer, "The service is ordered as needed.") == ([], 1)

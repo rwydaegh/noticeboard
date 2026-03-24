@@ -34,7 +34,9 @@ def validate_claims(answer, source):
     accepted, rejected = [], 0
     normalized_source = " ".join(source.split())
     for claim in answer.claims:
-        if " ".join(claim.quote.split()) in normalized_source:
+        quoted_numbers = set(re.findall(r"\d+(?:[.,]\d+)?", claim.quote))
+        claimed_numbers = set(re.findall(r"\d+(?:[.,]\d+)?", claim.answer))
+        if " ".join(claim.quote.split()) in normalized_source and claimed_numbers <= quoted_numbers:
             accepted.append(claim.model_dump())
         else:
             rejected += 1
