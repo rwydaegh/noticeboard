@@ -56,4 +56,14 @@ describe("Static collection search", () => {
         .map((n) => n.id),
     ).toEqual([2, 1]);
   });
+  it("reports a failed logout rather than clearing the session locally", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce({ json: async () => ({ csrfToken: "test" }) })
+        .mockResolvedValueOnce({ ok: false }),
+    );
+    await expect(api.signOut()).rejects.toThrow("Sign out failed");
+  });
 });

@@ -204,9 +204,10 @@ export async function authenticate(username: string, password: string) {
 export async function signOut() {
   const r = await fetch("/auth/csrf");
   token = (await r.json()).csrfToken;
-  await fetch("/auth/logout", {
+  const response = await fetch("/auth/logout", {
     method: "POST",
     headers: { "X-CSRFToken": token },
   });
+  if (!response.ok) throw Error("Sign out failed. Please try again.");
   token = "";
 }
