@@ -231,3 +231,17 @@ def test_real_quote_does_not_validate_invented_numeric_claim():
         {"claims": [{"answer": "3 years", "quote": "The service is ordered as needed."}]}
     )
     assert validate_claims(answer, "The service is ordered as needed.") == ([], 1)
+
+
+def test_multilingual_publication_preserves_languages():
+    parsed = parse_search(
+        {
+            "publication-number": "1002-2026",
+            "publication-date": "2026-01-10",
+            "official-language": ["ENG", "FRA", "DEU", "NLD"],
+            "buyer-country": "BEL",
+        }
+    )
+    assert parsed["language"] == "eng"
+    assert parsed["languages"] == ["ENG", "FRA", "DEU", "NLD"]
+    assert parsed["country"] == "BEL"
