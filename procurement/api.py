@@ -274,6 +274,7 @@ class SearchInput(Schema):
     query: str = Field(default="", max_length=500)
     country: str = Field(default="", max_length=3)
     status: str = Field(default="", max_length=20)
+    mode: str = Field(default="keyword", pattern="^(keyword|hybrid)$")
 
 
 @api.get("/saved-searches", auth=django_auth)
@@ -281,7 +282,7 @@ def saved_searches(request):
     return {
         "items": list(
             SavedSearch.objects.filter(user=request.user).values(
-                "id", "name", "query", "country", "status"
+                "id", "name", "query", "country", "status", "mode"
             )
         )
     }

@@ -97,6 +97,7 @@ class SavedSearch(models.Model):
     query = models.CharField(max_length=500, blank=True)
     country = models.CharField(max_length=3, blank=True)
     status = models.CharField(max_length=20, blank=True)
+    mode = models.CharField(max_length=10, default="keyword")
     created_at = models.DateTimeField(auto_now_add=True)
 
 

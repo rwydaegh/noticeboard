@@ -104,9 +104,10 @@ def test_saved_search_ownership_and_watch_isolation(notice):
     b.force_login(bob)
     ident = a.post(
         "/api/saved-searches",
-        json.dumps({"name": "Private search"}),
+        json.dumps({"name": "Private search", "mode": "hybrid"}),
         content_type="application/json",
     ).json()["id"]
+    assert a.get("/api/saved-searches").json()["items"][0]["mode"] == "hybrid"
     assert b.delete(f"/api/saved-searches/{ident}").status_code == 404
     a.put(
         f"/api/watchlist/{notice.opportunity_id}",

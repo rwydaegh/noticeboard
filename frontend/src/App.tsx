@@ -132,6 +132,7 @@ export default function App() {
                 name: q || "All notices",
                 query: q,
                 country,
+                mode,
               })
                 .then(savedQueries)
                 .catch(fail)
@@ -145,6 +146,7 @@ export default function App() {
                 onClick={() => {
                   setQ(s.query);
                   setCountry(s.country);
+                  setMode(s.mode || "keyword");
                   request<Results>(
                     "/notices?" +
                       new URLSearchParams({ q: s.query, country: s.country }),
