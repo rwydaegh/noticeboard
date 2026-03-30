@@ -1,3 +1,5 @@
+"""Source adapters. XML retains lot boundaries; search records do not invent them."""
+
 import hashlib
 import json
 import re
@@ -110,11 +112,7 @@ def parse_xml(raw):
             "{*}ProcurementProject/{*}RequestedTenderTotal/{*}EstimatedOverallContractAmount"
         )
         duration_node = lot.find("{*}ProcurementProject/{*}PlannedPeriod/{*}DurationMeasure")
-        duration = (
-            {"value": clean(duration_node.text), "unit": duration_node.attrib.get("unitCode", "")}
-            if duration_node is not None
-            else None
-        )
+        duration = {"value": clean(duration_node.text), "unit": duration_node.attrib.get("unitCode", "")} if duration_node is not None else None
         documents = [
             url
             for e in lot.findall(

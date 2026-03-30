@@ -30,8 +30,8 @@ try:
         expect(page.get_by_role("heading", name="Find a contract")).to_be_visible()
         page.get_by_role("textbox", name="Search notices").fill("Service Desk")
         page.get_by_role("button", name="Search", exact=True).click()
-        page.locator(".notice-row").filter(has_text="Example Service Desk").first.click()
-        expect(page.get_by_role("complementary")).to_contain_text("1001-2026")
+        page.locator(".notice-row").filter(has_text="Zajištění rozvojových").first.click()
+        expect(page.get_by_role("complementary")).to_contain_text("666712-2026")
         checks.append("search and source detail")
         page.get_by_role("button", name="Save notice", exact=True).click()
         page.get_by_label("Username", exact=True).fill(username)
@@ -51,7 +51,7 @@ try:
         with page.expect_download() as download:
             page.get_by_role("link", name="Calendar").click()
         calendar = Path(download.value.path()).read_text()
-        assert "BEGIN:VEVENT" in calendar and "20260403T100000Z" in calendar
+        assert "BEGIN:VEVENT" in calendar and "20261103T100000Z" in calendar
         checks.append("calendar export retains exact UTC deadline")
         page.get_by_role("navigation").get_by_role("button", name="Browse").click()
         page.get_by_role("button", name="Save search", exact=True).click()

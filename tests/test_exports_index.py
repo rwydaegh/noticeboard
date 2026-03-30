@@ -10,14 +10,25 @@ from procurement.models import Artifact
 from procurement.search import index_collection
 
 
-def test_version_comparison_cannot_mix_procedures(notice, source):
-    other = {**source, "publication_id": "123-2026", "procedure": "different"}
-    ingest(other, b"synthetic unrelated record", "xml")
-    response = Client().get(
-        f"/api/notices/{notice.opportunity_id}/compare",
-        {"before": "123-2026", "after": notice.publication_id},
-    )
-    assert response.status_code == 404
+def test_calendar_escapes_and_preserves_utc_deadline(notice):
+    data = calendar([notice])
+    assert "DTSTART:20261103T100000Z" in data
+    assert data.count("BEGIN:VEVENT") == 1
+    assert all(len(line.encode()) <= 75 for line in data.split("\r\n"))
+    assert "\r\n " in fold("SUMMARY:" + "é" * 100)
+
+
+def test_unknown_deadline_never_creates_calendar_event(notice):
+    notice.lots.update(deadline=None)
+    assert "BEGIN:VEVENT" not in calendar([notice])
+
+
+def test_reparse_same_source_updates_payload_without_duplicate_artifact(notice, source):
+    source["warnings"] = ["New parser observation"]
+    assert ingest(source, FIXTURE.read_bytes(), "xml")[1] == "updated"
+    notice.refresh_from_db()
+    assert notice.payload["warnings"] == source["warnings"]
+    assert Artifact.objects.count() == 1
 
 
 def test_failed_index_build_keeps_current_alias(notice):
@@ -45,22 +56,11 @@ def test_successful_index_build_switches_alias_after_refresh(notice):
     assert calls.index("refresh") < calls.index("update_aliases") < calls.index("delete")
 
 
-def test_calendar_escapes_and_preserves_utc_deadline(notice):
-    data = calendar([notice])
-    assert "DTSTART:20260403T100000Z" in data
-    assert data.count("BEGIN:VEVENT") == 1
-    assert all(len(line.encode()) <= 75 for line in data.split("\r\n"))
-    assert "\r\n " in fold("SUMMARY:" + "é" * 100)
-
-
-def test_unknown_deadline_never_creates_calendar_event(notice):
-    notice.lots.update(deadline=None)
-    assert "BEGIN:VEVENT" not in calendar([notice])
-
-
-def test_reparse_same_source_updates_payload_without_duplicate_artifact(notice, source):
-    source["warnings"] = ["New parser observation"]
-    assert ingest(source, FIXTURE.read_bytes(), "xml")[1] == "updated"
-    notice.refresh_from_db()
-    assert notice.payload["warnings"] == source["warnings"]
-    assert Artifact.objects.count() == 1
+def test_version_comparison_cannot_mix_procedures(notice, source):
+    other = {**source, "publication_id": "123-2026", "procedure": "different"}
+    ingest(other, b"synthetic unrelated record", "xml")
+    response = Client().get(
+        f"/api/notices/{notice.opportunity_id}/compare",
+        {"before": "123-2026", "after": notice.publication_id},
+    )
+    assert response.status_code == 404

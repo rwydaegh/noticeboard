@@ -19,7 +19,11 @@ from .models import ImportRun, Notice, Opportunity, Profile, SavedSearch, Watch
 from .search import index_collection, index_status, retrieve, source_matches
 from .serialization import compare, compare_payloads, serialize
 
-api = NinjaAPI(title="Noticeboard API", version="0.1.0")
+api = NinjaAPI(
+    title="Noticeboard API",
+    version="0.1.0",
+    description="Public procurement search and source records. Saved work requires a session.",
+)
 
 
 def opportunity(pk):

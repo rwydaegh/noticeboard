@@ -1,0 +1,295 @@
+{
+  "kind": "Development known-item retrieval checks. Labels selected from imported notice titles; not an independent relevance benchmark.",
+  "collection_notices": 644,
+  "index_coverage": {
+    "available": true,
+    "documents": 626,
+    "vectors": 626,
+    "expected": 626,
+    "counts_match": true
+  },
+  "summary": {
+    "keyword": {
+      "hit_at_5": 0.75,
+      "mrr_at_100": 0.6875
+    },
+    "hybrid": {
+      "hit_at_5": 0.875,
+      "mrr_at_100": 0.7786764705882353
+    }
+  },
+  "cases": [
+    {
+      "query": "service desk development",
+      "publication": "666712-2026",
+      "reason": "Development work on a Service Desk system",
+      "present": true,
+      "results": {
+        "keyword": {
+          "rank": 1,
+          "seconds": 0.093,
+          "backend": "OpenSearch BM25",
+          "warnings": [],
+          "top5": [
+            "666712-2026",
+            "656346-2026",
+            "665151-2026",
+            "664219-2026",
+            "651573-2026"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "seconds": 1.877,
+          "backend": "OpenSearch BM25 + multilingual vectors",
+          "warnings": [],
+          "top5": [
+            "666712-2026",
+            "670712-2026",
+            "662660-2026",
+            "669715-2026",
+            "660276-2026"
+          ]
+        }
+      }
+    },
+    {
+      "query": "cloud infrastructure hosting business continuity",
+      "publication": "662384-2026",
+      "reason": "CEFTA cloud infrastructure and managed services",
+      "present": true,
+      "results": {
+        "keyword": {
+          "rank": 1,
+          "seconds": 0.033,
+          "backend": "OpenSearch BM25",
+          "warnings": [],
+          "top5": [
+            "662384-2026",
+            "653724-2026",
+            "653878-2026",
+            "652096-2026",
+            "661742-2026"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "seconds": 0.097,
+          "backend": "OpenSearch BM25 + multilingual vectors",
+          "warnings": [],
+          "top5": [
+            "662384-2026",
+            "653878-2026",
+            "655900-2026",
+            "657631-2026",
+            "668893-2026"
+          ]
+        }
+      }
+    },
+    {
+      "query": "cloud backup recovery subscriptions",
+      "publication": "657631-2026",
+      "reason": "SkyKick backup and recovery subscriptions",
+      "present": true,
+      "results": {
+        "keyword": {
+          "rank": 1,
+          "seconds": 0.034,
+          "backend": "OpenSearch BM25",
+          "warnings": [],
+          "top5": [
+            "657631-2026",
+            "668846-2026",
+            "653878-2026",
+            "659701-2026",
+            "660186-2026"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "seconds": 0.076,
+          "backend": "OpenSearch BM25 + multilingual vectors",
+          "warnings": [],
+          "top5": [
+            "657631-2026",
+            "653878-2026",
+            "668846-2026",
+            "662863-2026",
+            "660186-2026"
+          ]
+        }
+      }
+    },
+    {
+      "query": "case management archive labour inspection",
+      "publication": "653874-2026",
+      "reason": "Case and archive system for a labour inspection authority",
+      "present": true,
+      "results": {
+        "keyword": {
+          "rank": 1,
+          "seconds": 0.036,
+          "backend": "OpenSearch BM25",
+          "warnings": [],
+          "top5": [
+            "653874-2026",
+            "660361-2026",
+            "663300-2026",
+            "661336-2026",
+            "652737-2026"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "seconds": 0.14,
+          "backend": "OpenSearch BM25 + multilingual vectors",
+          "warnings": [],
+          "top5": [
+            "653874-2026",
+            "657392-2026",
+            "660361-2026",
+            "659672-2026",
+            "668811-2026"
+          ]
+        }
+      }
+    },
+    {
+      "query": "financial literacy skills",
+      "publication": "664853-2026",
+      "reason": "FinStart financial skills programme; Greek source title",
+      "present": true,
+      "results": {
+        "keyword": {
+          "rank": null,
+          "seconds": 0.013,
+          "backend": "OpenSearch BM25",
+          "warnings": [],
+          "top5": [
+            "667080-2026",
+            "651560-2026",
+            "660102-2026",
+            "658662-2026",
+            "663070-2026"
+          ]
+        },
+        "hybrid": {
+          "rank": 5,
+          "seconds": 0.063,
+          "backend": "OpenSearch BM25 + multilingual vectors",
+          "warnings": [],
+          "top5": [
+            "667080-2026",
+            "651560-2026",
+            "660102-2026",
+            "657574-2026",
+            "664853-2026"
+          ]
+        }
+      }
+    },
+    {
+      "query": "cyberadministration framework",
+      "publication": "669862-2026",
+      "reason": "DIGI-FR cyberadministration framework contract",
+      "present": true,
+      "results": {
+        "keyword": {
+          "rank": 2,
+          "seconds": 0.012,
+          "backend": "OpenSearch BM25",
+          "warnings": [],
+          "top5": [
+            "656109-2026",
+            "669862-2026",
+            "650877-2026",
+            "652675-2026",
+            "654692-2026"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "seconds": 0.066,
+          "backend": "OpenSearch BM25 + multilingual vectors",
+          "warnings": [],
+          "top5": [
+            "669862-2026",
+            "652675-2026",
+            "656109-2026",
+            "663752-2026",
+            "665118-2026"
+          ]
+        }
+      }
+    },
+    {
+      "query": "SAP cloud implementation tools",
+      "publication": "668893-2026",
+      "reason": "SAP Cloud ALM and implementation tool chain expert",
+      "present": true,
+      "results": {
+        "keyword": {
+          "rank": 1,
+          "seconds": 0.026,
+          "backend": "OpenSearch BM25",
+          "warnings": [],
+          "top5": [
+            "668893-2026",
+            "653878-2026",
+            "667461-2026",
+            "668319-2026",
+            "668460-2026"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "seconds": 0.078,
+          "backend": "OpenSearch BM25 + multilingual vectors",
+          "warnings": [],
+          "top5": [
+            "668893-2026",
+            "650894-2026",
+            "653878-2026",
+            "650408-2026",
+            "663002-2026"
+          ]
+        }
+      }
+    },
+    {
+      "query": "geographic information property",
+      "publication": "666209-2026",
+      "reason": "ImmoGIS property information system",
+      "present": true,
+      "results": {
+        "keyword": {
+          "rank": null,
+          "seconds": 0.044,
+          "backend": "OpenSearch BM25",
+          "warnings": [],
+          "top5": [
+            "667626-2026",
+            "659787-2026",
+            "658578-2026",
+            "670332-2026",
+            "663742-2026"
+          ]
+        },
+        "hybrid": {
+          "rank": 34,
+          "seconds": 0.108,
+          "backend": "OpenSearch BM25 + multilingual vectors",
+          "warnings": [],
+          "top5": [
+            "655876-2026",
+            "660951-2026",
+            "667626-2026",
+            "654886-2026",
+            "659335-2026"
+          ]
+        }
+      }
+    }
+  ]
+}

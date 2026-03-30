@@ -1,10 +1,10 @@
 import copy
 import json
 from datetime import UTC, datetime
+from pathlib import Path
 
 import httpx
 import pytest
-from conftest import FIXTURE
 from defusedxml.common import EntitiesForbidden
 from django.contrib.auth.models import User
 from django.test import Client, override_settings
@@ -16,11 +16,108 @@ from procurement.parsing import deadline, parse_search, parse_xml, status
 from procurement.search import retrieve
 from procurement.serialization import compare
 
+FIXTURE = Path(__file__).parent / "fixtures/666712-2026.xml"
+
+
+def test_real_xml_preserves_deadline_timezone_and_lot(source):
+    assert source["country"] == "CZE"
+    assert source["lots"][0]["identifier"] == "LOT-0001"
+    assert source["lots"][0]["deadline"] == "2026-11-03T11:00:00+01:00"
+    assert source["lots"][0]["duration"] == {"value": "24", "unit": "MONTH"}
+    assert status(source, datetime(2026, 11, 3, 9, 59, tzinfo=UTC)) == "open"
+    assert status(source, datetime(2026, 11, 3, 10, 0, tzinfo=UTC)) == "closed"
+
+
+@pytest.mark.parametrize(
+    "day,clock", [("2026-11-03", ""), ("2026-11-03", "11:00:00"), ("bad", "bad")]
+)
+def test_incomplete_deadlines_never_become_exact(day, clock):
+    assert deadline(day, clock) is None
+
+
+def test_mixed_lot_deadlines_do_not_claim_closed(source):
+    source["lots"].append({"identifier": "LOT-0002", "deadline": None})
+    assert status(source, datetime(2027, 1, 1, tzinfo=UTC)) == "deadline unverified"
+    source["kind"] = "can-standard"
+    assert status(source) == "award"
+    source["cancelled"] = True
+    assert status(source) == "cancelled"
+
+
+def test_xml_entities_are_rejected():
+    with pytest.raises(EntitiesForbidden):
+        parse_xml(
+            b'<!DOCTYPE x [<!ENTITY secret SYSTEM "file:///etc/passwd">]><ContractNotice>&secret;</ContractNotice>'
+        )
+
+
+@pytest.mark.django_db
+def test_repeat_import_and_historical_arrival(source):
+    latest, outcome = ingest(source, FIXTURE.read_bytes(), "xml")
+    assert outcome == "created"
+    assert ingest(source, FIXTURE.read_bytes(), "xml")[1] == "unchanged"
+    earlier = copy.deepcopy(source)
+    earlier.update(publication_id="100-2026", published="2026-09-01", title="Earlier title")
+    old, _ = ingest(earlier, b"synthetic earlier version", "xml")
+    latest.opportunity.refresh_from_db()
+    assert latest.opportunity.current_id == latest.id
+    assert Notice.objects.count() == Artifact.objects.count() == 2
+    assert Opportunity.objects.count() == 1
+    assert compare(old, latest)["fields"][0]["field"] == "title"
+
+
+def test_metadata_cannot_downgrade_authoritative_xml(notice, source):
+    metadata = {
+        **source,
+        "quality": "search",
+        "procedure": "incomplete",
+        "title": "Incomplete metadata",
+    }
+    assert ingest(metadata, metadata)[1] == "unchanged"
+    notice.refresh_from_db()
+    assert notice.quality == "xml"
+    assert notice.title != metadata["title"]
+
+
+@pytest.mark.django_db
+def test_xml_regrouping_preserves_saved_work_and_old_link(source):
+    metadata = {**source, "quality": "search", "procedure": "temporary-group"}
+    initial, _ = ingest(metadata, metadata)
+    old_id = initial.opportunity_id
+    user = User.objects.create_user("reviewer")
+    watch = Watch.objects.create(
+        user=user,
+        opportunity=initial.opportunity,
+        note="Keep this review",
+        seen_notice=initial,
+        seen_checksum=initial.checksum,
+        seen_payload=metadata,
+    )
+    enriched, _ = ingest(source, FIXTURE.read_bytes(), "xml")
+    watch.refresh_from_db()
+    assert watch.opportunity_id == enriched.opportunity_id != old_id
+    assert watch.note == "Keep this review"
+    assert Client().get(f"/api/notices/{old_id}").json()["id"] == enriched.opportunity_id
+
+
+def test_same_publication_revision_appears_in_change_inbox(notice, source):
+    user = User.objects.create_user("revision-reviewer")
+    client = Client()
+    client.force_login(user)
+    client.put(f"/api/watchlist/{notice.opportunity_id}", "{}", content_type="application/json")
+    source["title"] = "A corrected source title"
+    ingest(source, b"synthetic revised source bytes", "xml")
+    item = client.get("/api/inbox").json()["items"][0]
+    assert item["changes"]["fields"][0]["field"] == "title"
+    assert client.get("/api/watchlist").json()["items"][0]["updated"]
+    client.put(f"/api/watchlist/{notice.opportunity_id}", "{}", content_type="application/json")
+    assert client.get("/api/inbox").json()["items"] == []
+
 
 def test_search_arrays_are_not_invented_lots():
     record = {
         "publication-number": "000123-2026",
-        "publication-date": "2026-01-09",
+        "publication-date": "2026-09-28",
         "notice-title": {"eng": "Test"},
         "buyer-country": ["BEL"],
         "notice-type": "cn-standard",
@@ -32,19 +129,18 @@ def test_search_arrays_are_not_invented_lots():
     assert status(parsed) == "deadline unverified"
 
 
-@pytest.mark.django_db
-def test_repeat_import_and_historical_arrival(source):
-    latest, outcome = ingest(source, FIXTURE.read_bytes(), "xml")
-    assert outcome == "created"
-    assert ingest(source, FIXTURE.read_bytes(), "xml")[1] == "unchanged"
-    earlier = copy.deepcopy(source)
-    earlier.update(publication_id="100-2026", published="2026-01-01", title="Earlier title")
-    old, _ = ingest(earlier, b"synthetic earlier version", "xml")
-    latest.opportunity.refresh_from_db()
-    assert latest.opportunity.current_id == latest.id
-    assert Notice.objects.count() == Artifact.objects.count() == 2
-    assert Opportunity.objects.count() == 1
-    assert compare(old, latest)["fields"][0]["field"] == "title"
+def test_multilingual_publication_preserves_languages():
+    parsed = parse_search(
+        {
+            "publication-number": "669783-2026",
+            "publication-date": "2026-09-29",
+            "official-language": ["ENG", "FRA", "DEU", "NLD"],
+            "buyer-country": "BEL",
+        }
+    )
+    assert parsed["language"] == "eng"
+    assert parsed["languages"] == ["ENG", "FRA", "DEU", "NLD"]
+    assert parsed["country"] == "BEL"
 
 
 def test_retry_after_and_timeout_are_visible():
@@ -83,17 +179,31 @@ def test_bad_record_is_quarantined_and_cursor_loop_fails():
     assert any("repeated" in e.get("error", "") for e in run.errors)
 
 
-def test_mutation_requires_csrf(notice):
-    user = User.objects.create_user("csrf-user")
-    client = Client(enforce_csrf_checks=True)
-    client.force_login(user)
-    url = f"/api/watchlist/{notice.opportunity_id}"
-    assert client.put(url, "{}", content_type="application/json").status_code == 403
-    token = client.get("/auth/csrf").json()["csrfToken"]
-    assert (
-        client.put(url, "{}", content_type="application/json", HTTP_X_CSRFTOKEN=token).status_code
-        == 200
+def test_quote_validation_rejects_invented_evidence():
+    answer = Answer.model_validate(
+        {
+            "claims": [
+                {"answer": "Stated", "quote": "The term is twenty four months."},
+                {"answer": "Invented", "quote": "No certifications are required."},
+            ]
+        }
     )
+    accepted, rejected = validate_claims(answer, "The term is twenty  four months.")
+    assert len(accepted) == 1 and rejected == 1
+
+
+def test_real_quote_does_not_validate_invented_numeric_claim():
+    answer = Answer.model_validate(
+        {"claims": [{"answer": "3 years", "quote": "The service is ordered as needed."}]}
+    )
+    assert validate_claims(answer, "The service is ordered as needed.") == ([], 1)
+
+
+def test_database_fallback_is_explicit(notice):
+    with override_settings(SEARCH_URL="http://127.0.0.1:1"):
+        result = retrieve(notice.title.split()[0])
+    assert result["items"][0].pk == notice.opportunity_id
+    assert result["backend"] == "database" and result["warnings"]
 
 
 def test_saved_search_ownership_and_watch_isolation(notice):
@@ -119,61 +229,17 @@ def test_saved_search_ownership_and_watch_isolation(notice):
     assert Client().get("/api/watchlist").status_code == 401
 
 
-def test_same_publication_revision_appears_in_change_inbox(notice, source):
-    user = User.objects.create_user("revision-reviewer")
-    client = Client()
+def test_mutation_requires_csrf(notice):
+    user = User.objects.create_user("csrf-user")
+    client = Client(enforce_csrf_checks=True)
     client.force_login(user)
-    client.put(f"/api/watchlist/{notice.opportunity_id}", "{}", content_type="application/json")
-    source["title"] = "A corrected source title"
-    ingest(source, b"synthetic revised source bytes", "xml")
-    item = client.get("/api/inbox").json()["items"][0]
-    assert item["changes"]["fields"][0]["field"] == "title"
-    assert client.get("/api/watchlist").json()["items"][0]["updated"]
-    client.put(f"/api/watchlist/{notice.opportunity_id}", "{}", content_type="application/json")
-    assert client.get("/api/inbox").json()["items"] == []
-
-
-def test_database_fallback_is_explicit(notice):
-    with override_settings(SEARCH_URL="http://127.0.0.1:1"):
-        result = retrieve(notice.title.split()[0])
-    assert result["items"][0].pk == notice.opportunity_id
-    assert result["backend"] == "database" and result["warnings"]
-
-
-@pytest.mark.parametrize(
-    "day,clock", [("2026-04-03", ""), ("2026-04-03", "11:00:00"), ("bad", "bad")]
-)
-def test_incomplete_deadlines_never_become_exact(day, clock):
-    assert deadline(day, clock) is None
-
-
-def test_mixed_lot_deadlines_do_not_claim_closed(source):
-    source["lots"].append({"identifier": "LOT-0002", "deadline": None})
-    assert status(source, datetime(2027, 1, 1, tzinfo=UTC)) == "deadline unverified"
-    source["kind"] = "can-standard"
-    assert status(source) == "award"
-    source["cancelled"] = True
-    assert status(source) == "cancelled"
-
-
-def test_xml_entities_are_rejected():
-    with pytest.raises(EntitiesForbidden):
-        parse_xml(
-            b'<!DOCTYPE x [<!ENTITY secret SYSTEM "file:///etc/passwd">]><ContractNotice>&secret;</ContractNotice>'
-        )
-
-
-def test_metadata_cannot_downgrade_authoritative_xml(notice, source):
-    metadata = {
-        **source,
-        "quality": "search",
-        "procedure": "incomplete",
-        "title": "Incomplete metadata",
-    }
-    assert ingest(metadata, metadata)[1] == "unchanged"
-    notice.refresh_from_db()
-    assert notice.quality == "xml"
-    assert notice.title != metadata["title"]
+    url = f"/api/watchlist/{notice.opportunity_id}"
+    assert client.put(url, "{}", content_type="application/json").status_code == 403
+    token = client.get("/auth/csrf").json()["csrfToken"]
+    assert (
+        client.put(url, "{}", content_type="application/json", HTTP_X_CSRFTOKEN=token).status_code
+        == 200
+    )
 
 
 def test_csv_formula_injection_is_neutralized(notice):
@@ -182,67 +248,3 @@ def test_csv_formula_injection_is_neutralized(notice):
     with override_settings(SEARCH_URL=""):
         response = Client().get("/api/export.csv")
     assert b"'=HYPERLINK" in response.content
-
-
-def test_quote_validation_rejects_invented_evidence():
-    answer = Answer.model_validate(
-        {
-            "claims": [
-                {"answer": "Stated", "quote": "The term is twenty four months."},
-                {"answer": "Invented", "quote": "No certifications are required."},
-            ]
-        }
-    )
-    accepted, rejected = validate_claims(answer, "The term is twenty  four months.")
-    assert len(accepted) == 1 and rejected == 1
-
-
-def test_synthetic_xml_preserves_deadline_timezone_and_lot(source):
-    assert source["country"] == "CZE"
-    assert source["lots"][0]["identifier"] == "LOT-0001"
-    assert source["lots"][0]["deadline"] == "2026-04-03T11:00:00+01:00"
-    assert source["lots"][0]["duration"] == {"value": "24", "unit": "MONTH"}
-    assert status(source, datetime(2026, 4, 3, 9, 59, tzinfo=UTC)) == "open"
-    assert status(source, datetime(2026, 4, 3, 10, 0, tzinfo=UTC)) == "closed"
-
-
-@pytest.mark.django_db
-def test_xml_regrouping_preserves_saved_work_and_old_link(source):
-    metadata = {**source, "quality": "search", "procedure": "temporary-group"}
-    initial, _ = ingest(metadata, metadata)
-    old_id = initial.opportunity_id
-    user = User.objects.create_user("reviewer")
-    watch = Watch.objects.create(
-        user=user,
-        opportunity=initial.opportunity,
-        note="Keep this review",
-        seen_notice=initial,
-        seen_checksum=initial.checksum,
-        seen_payload=metadata,
-    )
-    enriched, _ = ingest(source, FIXTURE.read_bytes(), "xml")
-    watch.refresh_from_db()
-    assert watch.opportunity_id == enriched.opportunity_id != old_id
-    assert watch.note == "Keep this review"
-    assert Client().get(f"/api/notices/{old_id}").json()["id"] == enriched.opportunity_id
-
-
-def test_real_quote_does_not_validate_invented_numeric_claim():
-    answer = Answer.model_validate(
-        {"claims": [{"answer": "3 years", "quote": "The service is ordered as needed."}]}
-    )
-    assert validate_claims(answer, "The service is ordered as needed.") == ([], 1)
-
-
-def test_multilingual_publication_preserves_languages():
-    parsed = parse_search(
-        {
-            "publication-number": "1002-2026",
-            "publication-date": "2026-01-10",
-            "official-language": ["ENG", "FRA", "DEU", "NLD"],
-            "buyer-country": "BEL",
-        }
-    )
-    assert parsed["language"] == "eng"
-    assert parsed["languages"] == ["ENG", "FRA", "DEU", "NLD"]
-    assert parsed["country"] == "BEL"

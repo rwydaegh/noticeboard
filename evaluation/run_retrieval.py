@@ -15,7 +15,7 @@ from procurement.models import Notice
 from procurement.search import index_status, retrieve
 
 root = Path(__file__).parent
-spec = json.loads((root / "synthetic-retrieval.json").read_text())
+spec = json.loads((root / "retrieval.json").read_text())
 coverage = index_status()
 if not coverage["counts_match"] or coverage["vectors"] != coverage["expected"]:
     raise SystemExit(f"Rebuild the full vector index before evaluation: {coverage}")

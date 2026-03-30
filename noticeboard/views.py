@@ -23,6 +23,12 @@ def csrf(request):
     return JsonResponse({"csrfToken": get_token(request)})
 
 
+def favicon(request):
+    return FileResponse(
+        (settings.BASE_DIR / "frontend/dist/favicon.svg").open("rb"), content_type="image/svg+xml"
+    )
+
+
 @require_POST
 @csrf_protect
 def sign_in(request):
@@ -71,9 +77,3 @@ def metrics(request):
         "noticeboard_last_import_timestamp", "Last completed or bounded import", registry=registry
     ).set(last.finished_at.timestamp() if last else 0)
     return HttpResponse(generate_latest(registry), content_type="text/plain; version=0.0.4")
-
-
-def favicon(request):
-    return FileResponse(
-        (settings.BASE_DIR / "frontend/dist/favicon.svg").open("rb"), content_type="image/svg+xml"
-    )

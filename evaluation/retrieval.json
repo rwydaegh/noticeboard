@@ -1,0 +1,13 @@
+{
+  "kind": "Development known-item retrieval checks. Labels selected from imported notice titles; not an independent relevance benchmark.",
+  "cases": [
+    {"query": "service desk development", "publication": "666712-2026", "reason": "Development work on a Service Desk system"},
+    {"query": "cloud infrastructure hosting business continuity", "publication": "662384-2026", "reason": "CEFTA cloud infrastructure and managed services"},
+    {"query": "cloud backup recovery subscriptions", "publication": "657631-2026", "reason": "SkyKick backup and recovery subscriptions"},
+    {"query": "case management archive labour inspection", "publication": "653874-2026", "reason": "Case and archive system for a labour inspection authority"},
+    {"query": "financial literacy skills", "publication": "664853-2026", "reason": "FinStart financial skills programme; Greek source title"},
+    {"query": "cyberadministration framework", "publication": "669862-2026", "reason": "DIGI-FR cyberadministration framework contract"},
+    {"query": "SAP cloud implementation tools", "publication": "668893-2026", "reason": "SAP Cloud ALM and implementation tool chain expert"},
+    {"query": "geographic information property", "publication": "666209-2026", "reason": "ImmoGIS property information system"}
+  ]
+}

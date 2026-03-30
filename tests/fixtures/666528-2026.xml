@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><ContractNotice xmlns="urn:oasis:names:specification:ubl:schema:xsd:ContractNotice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:efac="http://data.europa.eu/p27/eforms-ubl-extension-aggregate-components/1" xmlns:efbc="http://data.europa.eu/p27/eforms-ubl-extension-basic-components/1" xmlns:efext="http://data.europa.eu/p27/eforms-ubl-extensions/1" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
+   <ext:UBLExtensions>
+      <ext:UBLExtension>
+         <ext:ExtensionContent>
+            <efext:EformsExtension>
+               <efac:Changes>
+                  <efbc:ChangedNoticeIdentifier>634923-2026</efbc:ChangedNoticeIdentifier>
+                  <efac:ChangeReason>
+                     <cbc:ReasonCode listName="change-corrig-justification">cor-buy</cbc:ReasonCode>
+                  </efac:ChangeReason>
+               </efac:Changes>
+               <efac:NoticeSubType>
+                  <cbc:SubTypeCode listName="notice-subtype">16</cbc:SubTypeCode>
+               </efac:NoticeSubType>
+               <efac:Organizations>
+                  <efac:Organization>
+                     <efac:Company>
+                        <cbc:WebsiteURI>https://bip.cui.wroclaw.pl/</cbc:WebsiteURI>
+                        <cac:PartyIdentification>
+                           <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+                        </cac:PartyIdentification>
+                        <cac:PartyName>
+                           <cbc:Name languageID="POL">Centrum Usług Informatycznych we Wrocławiu</cbc:Name>
+                        </cac:PartyName>
+                        <cac:PostalAddress>
+                           <cbc:StreetName>ul. Namysłowska 8 </cbc:StreetName>
+                           <cbc:CityName>Wrocław</cbc:CityName>
+                           <cbc:PostalZone>50-304</cbc:PostalZone>
+                           <cbc:CountrySubentityCode listName="nuts">PL514</cbc:CountrySubentityCode>
+                           <cac:Country>
+                              <cbc:IdentificationCode listName="country">POL</cbc:IdentificationCode>
+                           </cac:Country>
+                        </cac:PostalAddress>
+                        <cac:PartyLegalEntity>
+                           <cbc:CompanyID>8971793846</cbc:CompanyID>
+                        </cac:PartyLegalEntity>
+                        <cac:Contact>
+                           <cbc:Telephone>+48 71 777 90 23</cbc:Telephone>
+                           <cbc:ElectronicMail>marta.kozyra@cui.wroclaw.pl</cbc:ElectronicMail>
+                        </cac:Contact>
+                     </efac:Company>
+                  </efac:Organization>
+                  <efac:Organization>
+                     <efac:Company>
+                        <cbc:WebsiteURI>https://www.uzp.gov.pl/kio</cbc:WebsiteURI>
+                        <cac:PartyIdentification>
+                           <cbc:ID schemeName="organization">ORG-0002</cbc:ID>
+                        </cac:PartyIdentification>
+                        <cac:PartyName>
+                           <cbc:Name languageID="POL">Krajowa Izba Odwoławcza</cbc:Name>
+                        </cac:PartyName>
+                        <cac:PostalAddress>
+                           <cbc:StreetName>Postępu 17a</cbc:StreetName>
+                           <cbc:CityName>Warszawa </cbc:CityName>
+                           <cbc:PostalZone>02-676</cbc:PostalZone>
+                           <cbc:CountrySubentityCode listName="nuts">PL911</cbc:CountrySubentityCode>
+                           <cac:Country>
+                              <cbc:IdentificationCode listName="country">POL</cbc:IdentificationCode>
+                           </cac:Country>
+                        </cac:PostalAddress>
+                        <cac:PartyLegalEntity>
+                           <cbc:CompanyID>5262239325</cbc:CompanyID>
+                        </cac:PartyLegalEntity>
+                        <cac:Contact>
+                           <cbc:Telephone>+48 224587801</cbc:Telephone>
+                           <cbc:ElectronicMail>odwolania@uzp.gov.pl</cbc:ElectronicMail>
+                        </cac:Contact>
+                     </efac:Company>
+                  </efac:Organization>
+                  <efac:Organization>
+                     <efac:Company>
+                        <cbc:WebsiteURI>https://op.europa.eu</cbc:WebsiteURI>
+                        <cac:PartyIdentification>
+                           <cbc:ID schemeName="organization">ORG-0000</cbc:ID>
+                        </cac:PartyIdentification>
+                        <cac:PartyName>
+                           <cbc:Name languageID="POL">Publications Office of the European Union</cbc:Name>
+                        </cac:PartyName>
+                        <cac:PostalAddress>
+                           <cbc:CityName>Luxembourg</cbc:CityName>
+                           <cbc:PostalZone>2417</cbc:PostalZone>
+                           <cbc:CountrySubentityCode listName="nuts">LU000</cbc:CountrySubentityCode>
+                           <cac:Country>
+                              <cbc:IdentificationCode listName="country">LUX</cbc:IdentificationCode>
+                           </cac:Country>
+                        </cac:PostalAddress>
+                        <cac:PartyLegalEntity>
+                           <cbc:CompanyID>PUBL</cbc:CompanyID>
+                        </cac:PartyLegalEntity>
+                        <cac:Contact>
+                           <cbc:Telephone>+352 29291</cbc:Telephone>
+                           <cbc:ElectronicMail>ted@publications.europa.eu</cbc:ElectronicMail>
+                        </cac:Contact>
+                     </efac:Company>
+                  </efac:Organization>
+               </efac:Organizations>
+            <efac:Publication><efbc:NoticePublicationID schemeName="ojs-notice-id">00666528-2026</efbc:NoticePublicationID><efbc:GazetteID schemeName="ojs-id">187/2026</efbc:GazetteID><efbc:PublicationDate>2026-09-28+02:00</efbc:PublicationDate></efac:Publication></efext:EformsExtension>
+         </ext:ExtensionContent>
+      </ext:UBLExtension>
+   </ext:UBLExtensions>
+   <cbc:UBLVersionID>2.3</cbc:UBLVersionID>
+   <cbc:CustomizationID>eforms-sdk-1.14</cbc:CustomizationID>
+   <cbc:ID schemeName="notice-id">b25b26bb-f544-44a1-b74a-42b383e0d96b</cbc:ID>
+   <cbc:ContractFolderID>200b33d9-4466-4c2e-bedc-d104516d1d69</cbc:ContractFolderID>
+   <cbc:IssueDate>2026-09-25Z</cbc:IssueDate>
+   <cbc:IssueTime>11:21:26Z</cbc:IssueTime>
+   <cbc:VersionID>01</cbc:VersionID>
+   <cbc:RequestedPublicationDate>2026-09-28Z</cbc:RequestedPublicationDate>
+   <cbc:RegulatoryDomain>32014L0024</cbc:RegulatoryDomain>
+   <cbc:NoticeTypeCode listName="competition">cn-standard</cbc:NoticeTypeCode>
+   <cbc:NoticeLanguageCode listName="language">POL</cbc:NoticeLanguageCode>
+   <cac:ContractingParty>
+      <cbc:BuyerProfileURI>https://bip.cui.wroclaw.pl/artykuly/zamowienia</cbc:BuyerProfileURI>
+      <cac:ContractingPartyType>
+         <cbc:PartyTypeCode listName="buyer-legal-type">body-pl</cbc:PartyTypeCode>
+      </cac:ContractingPartyType>
+      <cac:ContractingActivity>
+         <cbc:ActivityTypeCode listName="authority-activity">gen-pub</cbc:ActivityTypeCode>
+      </cac:ContractingActivity>
+      <cac:Party>
+         <cac:PartyIdentification>
+            <cbc:ID schemeName="organization">ORG-0001</cbc:ID>
+         </cac:PartyIdentification>
+         <cac:ServiceProviderParty>
+            <cbc:ServiceTypeCode listName="organisation-role">ted-esen</cbc:ServiceTypeCode>
+            <cac:Party>
+               <cac:PartyIdentification>
+                  <cbc:ID schemeName="organization">ORG-0000</cbc:ID>
+               </cac:PartyIdentification>
+            </cac:Party>
+         </cac:ServiceProviderParty>
+      </cac:Party>
+   </cac:ContractingParty>
+   <cac:TenderingTerms>
+      <cac:ProcurementLegislationDocumentReference>
+         <cbc:ID>2.1.	Postępowanie o udzielenie niniejszego zamówienia publicznego prowadzone jest w trybie przetargu nieograniczonego (art. 132) z zastosowaniem procedury, o której mowa w art. 139 ustawy Prawo zamówień publicznych z dnia 11 września 2019 r. – Prawo zamówień publicznych (tj. Dz.U. z 2026 poz. 793.)</cbc:ID>
+      </cac:ProcurementLegislationDocumentReference>
+      <cac:TendererQualificationRequest>
+         <cac:SpecificTendererRequirement>
+            <cbc:TendererRequirementTypeCode listName="exclusion-grounds-source">epo-procurement-document</cbc:TendererRequirementTypeCode>
+         </cac:SpecificTendererRequirement>
+      </cac:TendererQualificationRequest>
+   </cac:TenderingTerms>
+   <cac:TenderingProcess>
+      <cbc:ProcedureCode listName="procurement-procedure-type">open</cbc:ProcedureCode>
+      <cac:ProcessJustification>
+         <cbc:ProcessReasonCode listName="accelerated-procedure">false</cbc:ProcessReasonCode>
+      </cac:ProcessJustification>
+   </cac:TenderingProcess>
+   <cac:ProcurementProject>
+      <cbc:ID schemeName="InternalID">CUI-ZZ.3201.17.2026</cbc:ID>
+      <cbc:Name languageID="POL">System klasy ERP w obszarze budżetowo-finansowo-księgowym i kadrowo-płacowym – jednostki organizacyjne Gminy Wrocław</cbc:Name>
+      <cbc:Description languageID="POL">Dostawa, wdrożenie i utrzymanie systemu klasy ERP w obszarze budżetowo-finansowo-księgowym i kadrowo-płacowym – jednostki organizacyjne Gminy Wrocław</cbc:Description>
+      <cbc:ProcurementTypeCode listName="contract-nature">supplies</cbc:ProcurementTypeCode>
+      <cac:MainCommodityClassification>
+         <cbc:ItemClassificationCode listName="cpv">48000000</cbc:ItemClassificationCode>
+      </cac:MainCommodityClassification>
+      <cac:AdditionalCommodityClassification>
+         <cbc:ItemClassificationCode listName="cpv">72260000</cbc:ItemClassificationCode>
+      </cac:AdditionalCommodityClassification>
+      <cac:AdditionalCommodityClassification>
+         <cbc:ItemClassificationCode listName="cpv">72262000</cbc:ItemClassificationCode>
+      </cac:AdditionalCommodityClassification>
+      <cac:AdditionalCommodityClassification>
+         <cbc:ItemClassificationCode listName="cpv">72250000</cbc:ItemClassificationCode>
+      </cac:AdditionalCommodityClassification>
+      <cac:RealizedLocation>
+         <cac:Address>
+            <cbc:CityName>Wrocław</cbc:CityName>
+            <cbc:CountrySubentityCode listName="nuts">PL514</cbc:CountrySubentityCode>
+            <cac:Country>
+               <cbc:IdentificationCode listName="country">POL</cbc:IdentificationCode>
+            </cac:Country>
+         </cac:Address>
+      </cac:RealizedLocation>
+   </cac:ProcurementProject>
+   <cac:ProcurementProjectLot>
+      <cbc:ID schemeName="Lot">LOT-0001</cbc:ID>
+      <cac:TenderingTerms>
+         <cbc:VariantConstraintCode listName="permission">not-allowed</cbc:VariantConstraintCode>
+         <cbc:FundingProgramCode listName="eu-funded">no-eu-funds</cbc:FundingProgramCode>
+         <cbc:RequiredCurriculaCode listName="requirement-stage">t-requ</cbc:RequiredCurriculaCode>
+         <cac:CallForTendersDocumentReference>
+            <ext:UBLExtensions>
+               <ext:UBLExtension>
+                  <ext:ExtensionContent>
+                     <efext:EformsExtension>
+                        <efac:OfficialLanguages>
+                           <cac:Language>
+                              <cbc:ID>POL</cbc:ID>
+                           </cac:Language>
+                        </efac:OfficialLanguages>
+                     </efext:EformsExtension>
+                  </ext:ExtensionContent>
+               </ext:UBLExtension>
+            </ext:UBLExtensions>
+            <cbc:ID>ocds-148610-13f0c0db-a52b-4d45-8828-0b48d2c45bb5</cbc:ID>
+            <cbc:DocumentType>non-restricted-document</cbc:DocumentType>
+            <cac:Attachment>
+               <cac:ExternalReference>
+                  <cbc:URI>https://ezamowienia.gov.pl/mp-client/search/list/ocds-148610-13f0c0db-a52b-4d45-8828-0b48d2c45bb5</cbc:URI>
+               </cac:ExternalReference>
+            </cac:Attachment>
+         </cac:CallForTendersDocumentReference>
+         <cac:TendererQualificationRequest>
+            <cac:SpecificTendererRequirement>
+               <cbc:TendererRequirementTypeCode listName="selection-criteria-source">epo-procurement-document</cbc:TendererRequirementTypeCode>
+            </cac:SpecificTendererRequirement>
+         </cac:TendererQualificationRequest>
+         <cac:TendererQualificationRequest>
+            <cac:SpecificTendererRequirement>
+               <cbc:TendererRequirementTypeCode listName="reserved-procurement">none</cbc:TendererRequirementTypeCode>
+            </cac:SpecificTendererRequirement>
+         </cac:TendererQualificationRequest>
+         <cac:ContractExecutionRequirement>
+            <cbc:ExecutionRequirementCode listName="reserved-execution">no</cbc:ExecutionRequirementCode>
+         </cac:ContractExecutionRequirement>
+         <cac:ContractExecutionRequirement>
+            <cbc:ExecutionRequirementCode listName="einvoicing">required</cbc:ExecutionRequirementCode>
+         </cac:ContractExecutionRequirement>
+         <cac:ContractExecutionRequirement>
+            <cbc:ExecutionRequirementCode listName="ecatalog-submission">not-allowed</cbc:ExecutionRequirementCode>
+         </cac:ContractExecutionRequirement>
+         <cac:ContractExecutionRequirement>
+            <cbc:ExecutionRequirementCode listName="esignature-submission">true</cbc:ExecutionRequirementCode>
+         </cac:ContractExecutionRequirement>
+         <cac:TenderRecipientParty>
+            <cbc:EndpointID>https://ezamowienia.gov.pl/mp-client/search/list/ocds-148610-13f0c0db-a52b-4d45-8828-0b48d2c45bb5</cbc:EndpointID>
+         </cac:TenderRecipientParty>
+         <cac:TenderValidityPeriod>
+            <cbc:DurationMeasure unitCode="DAY">90</cbc:DurationMeasure>
+         </cac:TenderValidityPeriod>
+         <cac:AppealTerms>
+            <cac:PresentationPeriod>
+               <cbc:Description languageID="POL">Odwołanie można składać w terminie do 10 dni liczonych od dnia ujawnienia wiadomości stanowiącą podsatwę odowłania.</cbc:Description>
+            </cac:PresentationPeriod>
+            <cac:AppealReceiverParty>
+               <cac:PartyIdentification>
+                  <cbc:ID>ORG-0002</cbc:ID>
+               </cac:PartyIdentification>
+            </cac:AppealReceiverParty>
+         </cac:AppealTerms>
+         <cac:Language>
+            <cbc:ID>POL</cbc:ID>
+         </cac:Language>
+         <cac:PostAwardProcess>
+            <cbc:ElectronicOrderUsageIndicator>true</cbc:ElectronicOrderUsageIndicator>
+            <cbc:ElectronicPaymentUsageIndicator>true</cbc:ElectronicPaymentUsageIndicator>
+         </cac:PostAwardProcess>
+      </cac:TenderingTerms>
+      <cac:TenderingProcess>
+         <cbc:SubmissionMethodCode listName="esubmission">required</cbc:SubmissionMethodCode>
+         <cbc:GovernmentAgreementConstraintIndicator>false</cbc:GovernmentAgreementConstraintIndicator>
+         <cac:TenderSubmissionDeadlinePeriod>
+            <cbc:EndDate>2026-10-09+02:00</cbc:EndDate>
+            <cbc:EndTime>11:00:00+02:00</cbc:EndTime>
+         </cac:TenderSubmissionDeadlinePeriod>
+         <cac:OpenTenderEvent>
+            <cbc:OccurrenceDate>2026-10-09+02:00</cbc:OccurrenceDate>
+            <cbc:OccurrenceTime>11:30:00+02:00</cbc:OccurrenceTime>
+         </cac:OpenTenderEvent>
+         <cac:AuctionTerms>
+            <cbc:AuctionConstraintIndicator>false</cbc:AuctionConstraintIndicator>
+         </cac:AuctionTerms>
+         <cac:ContractingSystem>
+            <cbc:ContractingSystemTypeCode listName="framework-agreement">none</cbc:ContractingSystemTypeCode>
+         </cac:ContractingSystem>
+         <cac:ContractingSystem>
+            <cbc:ContractingSystemTypeCode listName="dps-usage">none</cbc:ContractingSystemTypeCode>
+         </cac:ContractingSystem>
+      </cac:TenderingProcess>
+      <cac:ProcurementProject>
+         <cbc:ID schemeName="InternalID">CUI-ZZ.3201.17.2026</cbc:ID>
+         <cbc:Name languageID="POL">System klasy ERP w obszarze budżetowo-finansowo-księgowym i kadrowo-płacowym – jednostki organizacyjne Gminy Wrocław</cbc:Name>
+         <cbc:Description languageID="POL">Dostawa, wdrożenie i utrzymanie Systemu klasy ERP w obszarze budżetowo-finansowo-księgowym i kadrowo-płacowym </cbc:Description>
+         <cbc:ProcurementTypeCode listName="contract-nature">supplies</cbc:ProcurementTypeCode>
+         <cbc:Note languageID="POL">Podstawy do wykluczenia: 6.1. Zamawiający wykluczy z postępowania wykonawców, wobec których zachodzą podstawy wykluczenia o których mowa: 6.1.1 w art. 108 ust. 1 ustawy Pzp tj.: 1) będącego osobą fizyczną, którego prawomocnie skazano za przestępstwo: a) udziału w zorganizowanej grupie przestępczej albo
+związku mającym na celu popełnienie przestępstwa lub przestępstwa skarbowego, o którym mowa w art. 258 Kodeksu karnego b) handlu ludźmi, o którym mowa w art. 189a Kodeksu karnego, c) o którym mowa w art. 228-230a, art. 250a Kodeksu karnego, w art. 46-48 ustawy z dnia 25 czerwca 2010 r. o sporcie (Dz. U. z 2023 r. poz. 2048 oraz z 2024 r. poz. 1166) lub w art. 54 ust. 1-4 ustawy z dnia 12 maja 2011 r. o refundacji leków, środków spożywczych specjalnego przeznaczenia żywieniowego oraz wyrobów medycznych (Dz. U. z 2024 r. poz. 930), d) finansowania przestępstwa o charakterze terrorystycznym, o którym mowa w art.165a Kodeksu karnego, lub przestępstwo udaremniania lub utrudniania stwierdzenia przestępnego pochodzenia pieniędzy lub ukrywania ich pochodzenia, o którym mowa w art. 299 Kodeksu karnego, e) o charakterze terrorystycznym, o którym mowa w art. 115 § 20 Kodeksu karnego, lub mające na celu popełnienie tego przestępstwa, f) powierzenia wykonywania pracy małoletniemu cudzoziemcowi, o którym mowa w art. 9 ust. 2 ustawy z dnia 15 czerwca 2012 r. o skutkach powierzania wykonywania pracy cudzoziemcom przebywającym wbrew przepisom na terytorium Rzeczypospolitej Polskiej (Dz. U. z 2021 r. poz. 1745), g) przeciwko obrotowi gospodarczemu, o których mowa w art. 296-307 Kodeksu karnego, przestępstwo oszustwa, o którym mowa w art. 286 Kodeksu karnego, przestępstwo przeciwko wiarygodności dokumentów, o których mowa w art. 270-277d Kodeksu karnego, lub przestępstwo skarbowe, h) o którym mowa w art. 9 ust. 1 i 3 lub art. 10 ustawy z dnia 15 czerwca 2012 r. o skutkach powierzania wykonywania pracy cudzoziemcom przebywającym wbrew przepisom na terytorium Rzeczypospolitej Polskiej - lub za odpowiedni czyn zabroniony określony w przepisach prawa obcego; 2) jeżeli urzędującego członka jego organu zarządzającego lub nadzorczego, wspólnika spółki w spółce jawnej lub partnerskiej albo komplementariusza w spółce komandytowej lub komandytowo-akcyjnej lub prokurenta prawomocnie skazano za przestępstwo, o którym mowa w pkt 1; 3) wobec którego wydano prawomocny wyrok sądu lub ostateczną decyzję administracyjną o zaleganiu z uiszczeniem podatków, opłat lub składek na ubezpieczenie społeczne lub zdrowotne, chyba że wykonawca odpowiednio przed upływem terminu do składania wniosków o dopuszczenie do udziału w postępowaniu albo przed upływem terminu składania ofert dokonał płatności należnych podatków, opłat lub składek na ubezpieczenie społeczne lub zdrowotne wraz z odsetkami lub grzywnami lub zawarł wiążące porozumienie w sprawie spłaty tych należności; 4) wobec którego prawomocnie orzeczono zakaz ubiegania się o zamówienia publiczne; 5) jeżeli zamawiający może stwierdzić, na podstawie wiarygodnych przesłanek, że wykonawca zawarł z innymi wykonawcami porozumienie mające na celu zakłócenie konkurencji, w szczególności jeżeli należąc do tej samej grupy kapitałowej w rozumieniu ustawy z dnia 16 lutego 2007 r. o ochronie konkurencji i konsumentów, złożyli odrębne oferty, oferty częściowe lub wnioski o dopuszczenie do udziału w postępowaniu, chyba że wykażą, że przygotowali te oferty lub wnioski niezależnie od siebie; 6) jeżeli, w przypadkach, o których mowa w art. 85 ust. 1, doszło do zakłócenia konkurencji wynikającego z wcześniejszego zaangażowania tego wykonawcy lub podmiotu, który należy z wykonawcą do tej samej grupy kapitałowej w rozumieniu ustawy z dnia 16 lutego 2007 r. o ochronie konkurencji i konsumentów, chyba że spowodowane tym zakłócenie konkurencji może być wyeliminowane w inny sposób niż przez wykluczenie wykonawcy z udziału w postępowaniu o udzielenie zamówienia. i 6.1.2 w art. 7 ust. 1 ustawy z dnia 13 kwietnia 2022 r. o szczególnych rozwiązaniach w zakresie przeciwdziałania wspieraniu agresji na Ukrainę oraz służących ochronie bezpieczeństwa narodowego. 6.1.3 art. 5k Rozporządzenia Rady (UE) 2022/576 z dnia 8 kwietnia 2022 r. w sprawie zmiany rozporządzenia (UE) nr 833/2014 dotyczącego środków ograniczających w związku z działaniami Rosji destabilizującymi sytuację na Ukrainie (dalej „Rozporządzenie”). Dokumenty na potwierdzenie braku podstaw do wykluczeniu: JEDZ, informacja z Krajowego Rejestru Karnego w zakresie określonym w art. 108 ust. 1 pkt 1 i 2 ustawy Pzp oraz art. 108 ust. 1 pkt 4ustawy Pzp, odnośnie do orzeczenia zakazu ubiegania się o zamówienie publiczne tytułem środka karnego – wystawionej nie wcześniej niż 6 miesięcy przed jej złożeniem; 2) oświadczenia wykonawcy, w zakresie art. 108 ust. 1 pkt 5 ustawy, o braku przynależności do tej samej grupy kapitałowej, w rozumieniu ustawy z dnia 16 lutego 2007 r. o ochronie konkurencji i konsumentów (Dz. U. z 2019 r. poz. 369), z innym wykonawcą, który złożył odrębną ofertę albo oświadczenia o przynależności do tej samej grupy kapitałowej wraz z dokumentami lub informacjami potwierdzającymi przygotowanie oferty niezależnie od innego wykonawcy należącego do tej samej grupy kapitałowej; Wzór stanowi Załącznik nr 5 do SWZ;3) oświadczenia Wykonawcy o aktualności informacji zawartych w oświadczeniu, o którym mowa w art. 125 ust. 1 ustawy Pzp. Warunki udziału w postępowaniu: Zamawiający wymaga spełnienia warunku w zakresie: 6.2.4. zdolności technicznej lub zawodowej: Zamawiający uzna warunek za spełniony, w przypadku gdy Wykonawca wykaże, że w okresie ostatnich 7 (siedmiu) lat przed upływem terminu składania ofert, a jeżeli okres prowadzenia działalności jest krótszy – w tym okresie, wykonał
+1) należycie wdrożenie systemu budżetowo-finansowo-księgowego i/lub kadrowo-płacowego i świadczył dla niego przez okres co najmniej 13 miesięcy usługi utrzymania zawierające dostosowanie systemu do zmian prawnych dla co najmniej  2 podmiotów sektora finansów publicznych zatrudniających po co najmniej 200 pracowników 
+oraz
+2) świadczył przez okres co najmniej 25 miesięcy usługi utrzymania systemu budżetowo-finansowo-księgowego i/lub kadrowo-płacowego zawierające dostosowanie systemu do zmian prawnych dla co najmniej  1 innego podmiotu  sektora finansów publicznych zatrudniającego co najmniej 200 pracowników Powyższy system budżetowo-finansowo-księgowy i kadrowo-płacowy musi obsługiwać polską ustawę o finansach publicznych i o pracownikach samorządowych.
+Uwaga: Warunek zostanie spełniony jeżeli Wykonawca wykaże jedno wdrożenie i świadczenie usług utrzymania w ramach jednej umowy/kontraktu świadczone jednocześnie dla dwóch podmiotów sektora finansów publicznych (w ramach tzw. centrów usług wspólnych) albo dwa wdrożenia i świadczenie usług utrzymania w ramach dwóch umów /kontraktów dla dwóch różnych podmiotów sektora finansów publicznych oraz świadczenie usług utrzymania dla podmiotu sektora finansów publicznych innego niż powyżej w ramach innej umowy / kontraktu niż powyżej. 
+Co najmniej jedno wdrożenie, o którym mowa powyżej musiało dotyczyć zarówno systemu budżetowo-finansowo-księgowego jak i kadrowo-płacowego; pozostałe zaś albo systemu budżetowo-finansowo-księgowego albo systemu kadrowo-płacowego.
+.Zamawiający uzna warunek za spełniony, gdy:
+1) Wykonawca dysponuje lub będzie dysponował podczas realizacji zamówienia osobami spełniającymi poniższe wymagania:
+a) kierownik projektu (2 osoby) - Personel kluczowy posiada minimum 5 letnie doświadczenie zawodowe w kierowaniu projektami; każda z nich brała udział w kierowaniu co najmniej 2 projektami o wartości co najmniej 1.000 000 zł brutto każdy,  w których wdrożono dowolny system Wykonawcy i następnie go utrzymywano przez okres minimum 13 miesięcy;
+b) analityk biznesowo-systemowy (3 osoby) - Personel kluczowy posiada minimum 5 letnie doświadczenie zawodowe w prowadzeniu prac analitycznych w projektach informatycznych; brał udział w co najmniej 2 projektach o wartości co najmniej 1.000.000 zł brutto każdy, w których dostosowano dowolny system Wykonawcy do wymagań Zamawiającego i następnie go utrzymywano przez okres minimum 24 miesięcy;
+c) programista - Personel kluczowy (2 osoby) posiada minimum 3 letnie doświadczenie zawodowe w zakresie programowania w technologii, w której Wykonawca opracował system oferowany Zamawiającemu; brał udział w przynajmniej 2 projektach o wartości 1.000.000 zł brutto każdy, w których dostosowano dowolny system Wykonawcy do wymagań Zamawiającego i następnie je utrzymywano przez okres minimum 24 miesięcy
+d) architekt systemów IT - Personel kluczowy posiada minimum 3 letnie doświadczenie zawodowe w projektowaniu systemów informatycznych w środowisku chmurowym ; zna technologię w której Wykonawca opracował system oferowany Zamawiającemu, brał udział w co najmniej 2 projektach o wartości 1.000 000 zł brutto każdy, w których wdrożono dowolny system Wykonawcy i następnie go utrzymywano przez okres minimum 24 miesięcy.
+Wykaz dokumentów:
+1) 	wykaz dostaw wykonanych, a w przypadku świadczeń powtarzających się lub ciągłych również wykonywanych, w okresie ostatnich 7 lat, a jeżeli okres prowadzenia działalności jest krótszy – w tym okresie, wraz z podaniem ich wartości, przedmiotu, dat wykonania i podmiotów, na rzecz których dostawy zostały wykonane, oraz załączeniem dowodów określających czy te dostawy zostały wykonane lub są wykonywane należycie. 2)	wykaz osób, skierowanych przez wykonawcę do realizacji zamówienia publicznego, Wykonawca moze potwierdzić spełnianie warunków i braku podstaw do wykluczenia odpowiednio złożonymi dokumentami lub certyfikatami, o których mowa w art. 125 ust. 1 w zw. z art. 273 ust. 2 ustawy Pzp. Zamawiający nie wymaga przedmiotowych środków dowodowych, zabezpieczenia oferty wadium i zabezpieczenia należytego wykonania umowy. Zamawiający zastrzega możliwość unieważnienia postępowania o udzielenie zamówienia, jeżeli środki publiczne, które zamawiający zamierzał przeznaczyć na sfinansowanie przedmiotu </cbc:Note>
+         <cac:MainCommodityClassification>
+            <cbc:ItemClassificationCode listName="cpv">48000000</cbc:ItemClassificationCode>
+         </cac:MainCommodityClassification>
+         <cac:AdditionalCommodityClassification>
+            <cbc:ItemClassificationCode listName="cpv">72260000</cbc:ItemClassificationCode>
+         </cac:AdditionalCommodityClassification>
+         <cac:AdditionalCommodityClassification>
+            <cbc:ItemClassificationCode listName="cpv">72262000</cbc:ItemClassificationCode>
+         </cac:AdditionalCommodityClassification>
+         <cac:AdditionalCommodityClassification>
+            <cbc:ItemClassificationCode listName="cpv">72263000</cbc:ItemClassificationCode>
+         </cac:AdditionalCommodityClassification>
+         <cac:AdditionalCommodityClassification>
+            <cbc:ItemClassificationCode listName="cpv">72250000</cbc:ItemClassificationCode>
+         </cac:AdditionalCommodityClassification>
+         <cac:RealizedLocation>
+            <cac:Address>
+               <cbc:CityName>Wrocław</cbc:CityName>
+               <cbc:CountrySubentityCode listName="nuts">PL514</cbc:CountrySubentityCode>
+               <cac:Country>
+                  <cbc:IdentificationCode listName="country">POL</cbc:IdentificationCode>
+               </cac:Country>
+            </cac:Address>
+         </cac:RealizedLocation>
+         <cac:PlannedPeriod>
+            <cbc:DurationMeasure unitCode="MONTH">100</cbc:DurationMeasure>
+         </cac:PlannedPeriod>
+         <cac:ContractExtension>
+            <cbc:OptionsDescription languageID="POL">3.3.	Przedmiotem zamówienia objętym prawem opcji jest:
+3.3.1.	Świadczenie Wstępnych usług utrzymania dla Klientów – od dnia odbioru Systemu do dnia Udostępnienia Systemu do korzystania,
+3.3.2.	Przeprowadzenie przez Wykonawcę Analizy Systemowej i przygotowanie nowej wersji dokumentu Analizy Systemowej dla zleconych do wykonania przez Zamawiającego wymagań z priorytetami o poziomie 3 wskazanych w Załączniku nr 1 do umowy dla Klientów i/lub Klientów dodatkowych,
+3.3.3.	Świadczenie Usług Utrzymania dla Klientów, po zakończeniu 12 miesięcznego okresu świadczenia Usług Utrzymania w zamówieniu podstawowym, - przez okres maksymalnie 72 miesięcy kalendarzowych, z zastrzeżeniem że opcja w zakresie Usług Utrzymania może być uruchamiane sukcesywnie, na 12 miesięcy, w postaci oświadczenia Zamawiającego, złożonego nie później niż 30 dni przed rozpoczęciem kolejnego okresu utrzymania,
+3.3.4.	Sukcesywne przygotowywanie Systemu BFK i/lub HR  w wersji testowej i produkcyjnej dla wskazanych Klientów dodatkowych wg wymagań analizy systemowej, o której mowa w pkt.1 lit. a i 2 lit b powyżej,
+3.3.5.	Sukcesywne instalowanie i konfigurowanie Systemu BFK i/lub HR w uzgodniony sposób na uzgodnionych zasobach dla Klientów dodatkowych,
+3.3.6.	Sukcesywna migracja danych z dotychczasowych systemów wykorzystywanych przez Klientów dodatkowych do Systemu BFK i/lub HR,
+3.3.7.	Sukcesywne świadczenie usługi Asysty Stanowiskowej dla Klientów dodatkowych w liczbie łącznej nie większej niż 800 roboczogodzin,
+3.3.8.	Sukcesywne przygotowywanie i przekazywanie Zamawiającemu Dokumentacji systemu BFK i/lub HR dla obszaru Klientów dodatkowych,
+3.3.9.	Świadczenie Wstępnych usług utrzymania dla Klientów dodatkowych – od dnia odbioru Systemu BFK i/lub HR dla Klienta dodatkowego do dnia przekazania mu systemu do użytkowania,
+3.3.10.	Świadczenie Usług Utrzymania dla Klientów dodatkowych po przekazaniu Systemu BFK i/lub HR do Użytkowania Klienta dodatkowego, przez okres maksymalnie 84 miesięcy kalendarzowych, z zastrzeżeniem że opcja w zakresie Usług Utrzymania może być uruchamiana sukcesywnie na 12 miesięcy,
+3.3.11.	Sukcesywne przeprowadzanie szkoleń dla 10 grup Użytkowników Systemu BFK i/lub HR dla Klientów dodatkowych, zlecanych przez Zamawiającego zgodnie z potrzebami, 
+3.3.12.	Przeprowadzenie szkoleń dla Administratorów (1 grupa),
+3.3.13.	Udzielenie licencji na korzystanie z Systemu BFK i/lub HR w wersji testowej i produkcyjnej dla Klientów dodatkowych,
+3.3.14.	Świadczenie Usług Rozwoju w maksymalnej ilości 1.000 Roboczogodzin,
+3.3.15.	Przygotowanie i przekazanie Zamawiającemu obrazu Systemu (wraz z wykazem licencji niezbędnych do uruchomienia Systemu z tego obrazu), który umożliwi jego ulokowanie na innych zasobach wybranych przez Zamawiającego, zgodnie z Dokumentacją Administracyjną zaktualizowaną na dzień przekazania obrazu w tym z wymaganiami wskazanymi w pkt 8 Załącznika nr 7;
+3.3.17.	Uruchomienie szyfrowania danych w Systemie BFK i/lub HR w ramach wymagań o statusie 3 dla wskazanych przez Zamawiającego Klientów i/lub Klientów dodatkowych;
+3.3.18.	Zrealizowanie pozostałych wymagań o statusie 3 dla Systemu BFK i/lub HR dla wskazanych przez Zamawiającego Klientów i/lub Klientów dodatkowych.
+3.3.19.	Zamawiający przewiduje, że prawo opcji będzie obejmować maksymalnie 4 Klientów dodatkowych w ramach jednego zlecenia.
+</cbc:OptionsDescription>
+         </cac:ContractExtension>
+      </cac:ProcurementProject>
+   </cac:ProcurementProjectLot>
+</ContractNotice>

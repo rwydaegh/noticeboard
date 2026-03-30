@@ -10,7 +10,7 @@ function notice(
   id: number,
   title: string,
   description: string,
-  published = "2026-01-09",
+  published = "2026-09-28",
 ): Notice {
   return {
     id,
