@@ -248,3 +248,12 @@ def test_csv_formula_injection_is_neutralized(notice):
     with override_settings(SEARCH_URL=""):
         response = Client().get("/api/export.csv")
     assert b"'=HYPERLINK" in response.content
+
+
+def test_api_documentation_renders_with_schema(client):
+    response = client.get("/api/docs")
+    assert response.status_code == 200
+    assert b"swagger-ui" in response.content
+    schema = client.get("/api/openapi.json")
+    assert schema.status_code == 200
+    assert "/api/notices" in schema.json()["paths"]

@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "procurement",
+    "ninja",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -37,6 +38,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+TEMPLATES = [{"BACKEND": "django.template.backends.django.DjangoTemplates", "APP_DIRS": True}]
 ROOT_URLCONF = "noticeboard.urls"
 WSGI_APPLICATION = "noticeboard.wsgi.application"
 DATABASES = {
