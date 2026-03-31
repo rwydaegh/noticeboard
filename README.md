@@ -49,7 +49,7 @@ The first vector build downloads a multilingual CPU embedding model. A keyword-o
 
 The watchlist is for everyone who has ever said 'I'll remember which tab that was' and then opened another twelve.
 
-The application is free and self-hosted. Accounts and saved work belong to your installation. No commercial API key is required.
+No account is needed to save notices, notes, searches or a matching profile. These stay in your browser. Existing accounts keep a separate set of saved work on the server. AI answers require an account. No commercial API key is required.
 
 ## Tech stack
 

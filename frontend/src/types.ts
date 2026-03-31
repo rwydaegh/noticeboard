@@ -78,6 +78,7 @@ export type Collection = {
   today: string;
 };
 export type Watch = {
+  unavailable?: boolean;
   opportunity: Notice;
   stage: string;
   note: string;

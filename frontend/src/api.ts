@@ -1,9 +1,11 @@
+import { browserRequest, browserRoute, browserUser } from "./browser";
 import type { Snapshot, Notice } from "./types";
 
 export const demo =
   new URLSearchParams(location.search).has("snapshot") ||
   import.meta.env.VITE_STATIC_DEMO === "1";
 let token = "";
+let account = false;
 let snapshotPromise: Promise<Snapshot> | undefined;
 const storeKey = "noticeboard-snapshot-v1";
 function local(): {
@@ -168,6 +170,27 @@ export async function request<T>(
   payload?: unknown,
 ): Promise<T> {
   if (demo) return localRequest(path, method, payload) as Promise<T>;
+  if (path === "/session") {
+    const session = await serverRequest<{
+      user: string | null;
+      llm_available: boolean;
+    }>(path);
+    account = !!session.user;
+    return {
+      ...session,
+      user: session.user || browserUser,
+      llm_available: account && session.llm_available,
+    } as T;
+  }
+  if (!account && browserRoute(path))
+    return browserRequest(path, method, payload, serverRequest) as Promise<T>;
+  return serverRequest<T>(path, method, payload);
+}
+async function serverRequest<T>(
+  path: string,
+  method = "GET",
+  payload?: unknown,
+): Promise<T> {
   if (method !== "GET" && !token) {
     const r = await fetch("/auth/csrf");
     token = (await r.json()).csrfToken;
@@ -183,7 +206,7 @@ export async function request<T>(
       const e = await response.json();
       msg = typeof e.detail === "string" ? e.detail : JSON.stringify(e.detail);
     } catch {}
-    if (response.status === 401) msg = "Sign in to save work.";
+    if (response.status === 401) msg = "Sign in again.";
     throw Error(msg);
   }
   return response.json();
@@ -199,6 +222,7 @@ export async function authenticate(username: string, password: string) {
   const body = await res.json();
   if (!res.ok) throw Error(body.detail);
   token = body.csrfToken;
+  account = true;
   return body.user as string;
 }
 export async function signOut() {
@@ -210,4 +234,5 @@ export async function signOut() {
   });
   if (!response.ok) throw Error("Sign out failed. Please try again.");
   token = "";
+  account = false;
 }

@@ -33,7 +33,7 @@ try:
         page.locator(".notice-row").filter(has_text="Zajištění rozvojových").first.click()
         expect(page.get_by_role("complementary")).to_contain_text("666712-2026")
         checks.append("search and source detail")
-        page.get_by_role("button", name="Save notice", exact=True).click()
+        page.get_by_role("button", name="Sign in", exact=True).click()
         page.get_by_label("Username", exact=True).fill(username)
         page.get_by_label("Password", exact=True).fill(password)
         page.get_by_role("dialog").get_by_role("button", name="Sign in", exact=True).click()

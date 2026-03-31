@@ -80,3 +80,9 @@ Set `DJANGO_ALLOWED_HOSTS` to the public hostname, `CSRF_TRUSTED_ORIGINS` to its
 For a PC behind a home router, a persistent Tailscale Funnel can forward HTTPS to port 8920. Authenticate the device, enable Funnel for it, then run `sudo tailscale funnel --bg http://127.0.0.1:8920`. Keep the device authentication valid and the Tailscale service enabled at boot. The application is available while the PC, internet connection and tunnel are running.
 
 Use systemd for host-run application and model processes, with `Restart=on-failure` and startup enabled. User services also need lingering enabled if they must run before login. Back up PostgreSQL and the private runtime configuration separately from the source repository.
+
+## Browser saves
+
+Visitors save notices, review notes, searches and their matching profile in local storage. Clearing site data removes this work. The Saved page exports review records and deadlines. Signing in switches to account storage. Signing out restores browser saves. Neither action merges or deletes the other store.
+
+Run `NOTICEBOARD_URL=http://127.0.0.1:8920 uv run --extra browser python tests/browser_guest.py` to check browser persistence, account isolation, downloads and the API documentation against a running installation.

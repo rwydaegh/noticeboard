@@ -1,3 +1,4 @@
+import { browserUser, download, downloadCalendar } from "./browser";
 import { useEffect, useState } from "react";
 import { authenticate, demo, request, signOut } from "./api";
 import RelatedNotices from "./RelatedNotices";
@@ -87,6 +88,7 @@ export default function App() {
     }),
     [answer, setAnswer] = useState<Answer>(),
     [llm, setLlm] = useState(false);
+  const localUser = demo || user === browserUser;
   const [asking, setAsking] = useState<number | null>(null);
   function fail(e: unknown) {
     setError(e instanceof Error ? e.message : String(e));
@@ -169,20 +171,35 @@ export default function App() {
   }, []);
   useEffect(() => {
     if (!user) return;
+    let active = true;
     request<{ items: Watch[] }>("/watchlist")
-      .then((r) => setWatches(r.items))
+      .then((r) => {
+        if (active) setWatches(r.items);
+      })
       .catch(fail);
     request<{ items: SavedSearch[] }>("/saved-searches")
-      .then((r) => setSaved(r.items))
+      .then((r) => {
+        if (active) setSaved(r.items);
+      })
       .catch(fail);
     request<Profile>("/profile")
       .then((p) => {
+        if (!active) return;
         setProfile(p);
         setCountriesText(p.countries.join(", "));
         setExclusionsText(p.exclusions.join(", "));
       })
       .catch(fail);
+    return () => {
+      active = false;
+    };
   }, [user, revision]);
+  useEffect(() => {
+    if (!localUser) return;
+    const refresh = () => setRevision((r) => r + 1);
+    window.addEventListener("storage", refresh);
+    return () => window.removeEventListener("storage", refresh);
+  }, [localUser]);
   useEffect(() => {
     let active = true;
     if (tab === "Browse") {
@@ -226,7 +243,11 @@ export default function App() {
       return;
     }
     await action(async () => {
-      await request("/watchlist/" + n.id, "PUT", { stage, note });
+      await request("/watchlist/" + n.id, "PUT", {
+        stage,
+        note,
+        ...(localUser ? { notice: n } : {}),
+      });
       setRevision((r) => r + 1);
     });
   }
@@ -269,14 +290,21 @@ export default function App() {
         <div className="account">
           {demo ? (
             <span>Demo. Saved in this browser.</span>
-          ) : user ? (
+          ) : user && !localUser ? (
             <>
               <span>{user}</span>
               <button
                 onClick={() =>
                   void action(async () => {
                     await signOut();
-                    setUser(null);
+                    setUser(browserUser);
+                    setLlm(false);
+                    setMatches({
+                      items: [],
+                      total: 0,
+                      backend: "",
+                      warnings: [],
+                    });
                     setWatches([]);
                     setSaved([]);
                     setSelected(undefined);
@@ -289,7 +317,10 @@ export default function App() {
               </button>
             </>
           ) : (
-            <button onClick={() => setLogin(true)}>Sign in</button>
+            <>
+              <span>Saved in this browser</span>
+              <button onClick={() => setLogin(true)}>Sign in</button>
+            </>
           )}
         </div>
       </header>
@@ -509,12 +540,34 @@ export default function App() {
                       />
                       Updated ({watches.filter((w) => w.updated).length})
                     </label>
-                    {!demo && (
-                      <>
-                        <a href="/api/watch-calendar.ics">Calendar</a>
-                        <a href="/api/review-export">Export</a>
-                      </>
-                    )}
+                    {!demo &&
+                      (localUser ? (
+                        <>
+                          <button
+                            onClick={() =>
+                              void action(() => downloadCalendar(watches))
+                            }
+                          >
+                            Calendar
+                          </button>
+                          <button
+                            onClick={() =>
+                              download(
+                                "reviews.json",
+                                JSON.stringify({ items: watches }, null, 2),
+                                "application/json",
+                              )
+                            }
+                          >
+                            Export
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <a href="/api/watch-calendar.ics">Calendar</a>
+                          <a href="/api/review-export">Export</a>
+                        </>
+                      ))}
                   </div>
                 )}
                 {!user ? (
@@ -526,7 +579,11 @@ export default function App() {
                       <div key={w.opportunity.id} className="watch-entry">
                         <div className="watch-state">
                           {label(w.stage)}
-                          {w.updated && <strong>Updated</strong>}
+                          {w.unavailable ? (
+                            <strong>Saved copy</strong>
+                          ) : (
+                            w.updated && <strong>Updated</strong>
+                          )}
                         </div>
                         {rows([w.opportunity])}
                         {w.note && <p>{w.note}</p>}
@@ -955,12 +1012,24 @@ export default function App() {
                 e.preventDefault();
                 const f = new FormData(e.currentTarget);
                 void action(async () => {
-                  setUser(
-                    await authenticate(
-                      String(f.get("username")),
-                      String(f.get("password")),
-                    ),
+                  await authenticate(
+                    String(f.get("username")),
+                    String(f.get("password")),
                   );
+                  const session = await request<{
+                    user: string;
+                    llm_available: boolean;
+                  }>("/session");
+                  setWatches([]);
+                  setSaved([]);
+                  setMatches({
+                    items: [],
+                    total: 0,
+                    backend: "",
+                    warnings: [],
+                  });
+                  setUser(session.user);
+                  setLlm(session.llm_available);
                   setLogin(false);
                 });
               }}

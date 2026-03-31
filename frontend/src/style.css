@@ -545,7 +545,10 @@ footer span {
   }
   .account {
     font-size: 11px;
-    max-width: 130px;
+    max-width: 150px;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
   }
   nav {
     gap: 20px;
@@ -591,7 +594,8 @@ footer span {
     text-align: right;
   }
   footer {
-    display: block;
+    flex-wrap: wrap;
+    gap: 16px;
   }
   footer span {
     display: block;
