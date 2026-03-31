@@ -1,4 +1,4 @@
-"""Measure known-item ranks on a declared development set; no automatic relevance claims."""
+"""Measure known-item ranks on a declared development set. No automatic relevance claims."""
 
 import json
 import os

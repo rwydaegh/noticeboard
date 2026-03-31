@@ -1,5 +1,5 @@
 {
-  "kind": "Development known-item retrieval checks. Labels selected from imported notice titles; not an independent relevance benchmark.",
+  "kind": "Development known-item retrieval checks. Labels selected from imported notice titles. Not an independent relevance benchmark.",
   "collection_notices": 644,
   "index_coverage": {
     "available": true,
@@ -158,7 +158,7 @@
     {
       "query": "financial literacy skills",
       "publication": "664853-2026",
-      "reason": "FinStart financial skills programme; Greek source title",
+      "reason": "FinStart financial skills programme, Greek source title",
       "present": true,
       "results": {
         "keyword": {

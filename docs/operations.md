@@ -52,6 +52,8 @@ Set `NOTICEBOARD_LLM_URL` to an OpenAI-compatible base URL, `NOTICEBOARD_LLM_MOD
 
 For a local model server, use a CPU build of [llama.cpp](https://github.com/ggml-org/llama.cpp) or [Ollama](https://docs.ollama.com/docker). The development check used Qwen2.5 1.5B. Its limitations are recorded in the evaluation report.
 
+The MCP server uses stdio and exposes four read-only tools: `search_notices`, `read_notice`, `find_evidence` and `collection_status`. It connects to the running HTTP application through `NOTICEBOARD_URL`. The static demo has no MCP endpoint.
+
 An MCP client can start the read-only server with:
 
 ```json

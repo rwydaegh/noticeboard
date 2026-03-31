@@ -1,4 +1,4 @@
-"""Portable review records and calendar events; no inferred deadlines."""
+"""Portable review records and calendar events. No inferred deadlines."""
 
 from datetime import UTC, datetime
 
@@ -46,7 +46,7 @@ def calendar(notices):
                     "SUMMARY:" + escape(f"Tender deadline: {lot.title or notice.title}"),
                     "DESCRIPTION:"
                     + escape(
-                        f"{notice.publication_id} · {lot.identifier}\nCheck the source documents for amendments before acting."
+                        f"{notice.publication_id}, {lot.identifier}\nCheck the source documents for amendments before acting."
                     ),
                     "URL:https://ted.europa.eu/en/notice/-/detail/" + notice.publication_id,
                     "END:VEVENT",

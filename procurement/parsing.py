@@ -1,4 +1,4 @@
-"""Source adapters. XML retains lot boundaries; search records do not invent them."""
+"""Source adapters. XML retains lot boundaries. Search records do not invent them."""
 
 import hashlib
 import json

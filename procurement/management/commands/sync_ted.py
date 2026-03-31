@@ -30,4 +30,4 @@ class Command(BaseCommand):
             )
         )
         if run.status in {"failed", "partial"}:
-            raise CommandError("Import incomplete; inspect the run record")
+            raise CommandError("Import incomplete. Inspect the run record")

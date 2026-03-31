@@ -236,7 +236,7 @@ def retrieve(query="", country="", state="", mode="keyword", limit=50, offset=0)
                 ranked = sorted(scores, key=lambda i: (-scores[i], i))
                 backend = "OpenSearch BM25 + multilingual vectors"
         except Exception:
-            log.exception("Search unavailable; using database retrieval")
+            log.exception("Search unavailable. Using database retrieval")
             ranked = None
             warnings.append("Basic search.")
     queryset = Opportunity.objects.exclude(current=None).select_related("current")

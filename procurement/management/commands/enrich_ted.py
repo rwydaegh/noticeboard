@@ -76,7 +76,7 @@ class Command(BaseCommand):
             run.finished_at = timezone.now()
             run.save()
         self.stdout.write(
-            f"Import {run.pk}: {run.status}; {run.seen} seen; {len(run.errors)} errors"
+            f"Import {run.pk}: {run.status}, {run.seen} seen, {len(run.errors)} errors"
         )
         if run.errors:
             raise CommandError(str(run.errors[:3]))

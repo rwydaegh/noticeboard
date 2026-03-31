@@ -16,7 +16,7 @@ class Command(BaseCommand):
             username=options["username"], defaults={"is_staff": True}
         )
         if not created:
-            self.stdout.write("Account already exists; password unchanged")
+            self.stdout.write("Account already exists. Password unchanged")
             return
         password = secrets.token_urlsafe(18)
         user.set_password(password)

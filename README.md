@@ -11,7 +11,7 @@ Noticeboard makes it easier to find interesting public contracts and keep track 
 
 Noticeboard reads procurement notices from [TED](https://ted.europa.eu/). It keeps the source records, groups publications by procedure, and preserves lot deadlines and amendment history. Search works across a local collection.
 
-[Try the browser demo](https://robinwydaeghe.com/noticeboard/) · [API and deployment guide](docs/operations.md)
+[Try the browser demo](https://robinwydaeghe.com/noticeboard/), [API and deployment guide](docs/operations.md)
 
 The demo uses a dated public snapshot and saves your work in this browser. The full installation adds scheduled imports, hybrid retrieval, accounts and model assistance.
 
@@ -57,4 +57,4 @@ Django and PostgreSQL hold the records. OpenSearch provides BM25 and vector retr
 
 Imports preserve source checksums and report partial failures. Index rebuilds publish through an atomic alias switch. Session-authenticated writes enforce CSRF protection and account ownership. Model quotes must occur in the supplied evidence, which includes labelled structured source fields. Numeric tokens in each draft claim must also appear in its quoted passage.
 
-[Architecture](docs/architecture.md) · [Operations](docs/operations.md) · [Evaluation](docs/evaluation.md) · [Source and licence notes](THIRD_PARTY_NOTICES.md)
+[Architecture](docs/architecture.md), [Operations](docs/operations.md), [Evaluation](docs/evaluation.md), [Source and licence notes](THIRD_PARTY_NOTICES.md)
